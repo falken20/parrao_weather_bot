@@ -221,10 +221,10 @@ def wordcloud():
 #####################
 
 # Twitter keys and tokens
-CONSUMER_KEY = 'PM9pz5JncC7EwU8It2A2TNdrp'
-CONSUMER_SECRET = 'S0xrR3gikijLxJzfszpI2c2sCApMjgk3Nr9PHzbkfyFuBmSECO'
-ACCESS_TOKEN = '171492732-Z8MAQnxihwwkuVuuqP4qIqzKpR1nzDiTzte4ICZA'
-ACCESS_TOKEN_SECRET = '25PXLhUl19mMJbJAdhMvhlRmtC2wYtCYYNRnEGFWIpszR'
+CONSUMER_KEY = ''
+CONSUMER_SECRET = ''
+ACCESS_TOKEN = ''
+ACCESS_TOKEN_SECRET = ''
 
 HASHTAG = '#felizmiercoles'
 NOMBRE_FICHERO = 'tests/richi_tweets.csv'
