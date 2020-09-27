@@ -1,8 +1,8 @@
 # by Richi Rod AKA @richionline / falken20
 
-__title__ = 'Richi Rod Portfolio'
+__title__ = 'Cercedilla Weather Twitter Bot'
 __version__ = '1.0.0'
-__author__ = 'Falken'
+__author__ = 'Richi Rod'
 __url_github__ = 'https://github.com/falken20/'
 __url_twitter__ = 'https://twitter.com/richionline'
 __url_linkedin__ = 'https://www.linkedin.com/in/richionline/'

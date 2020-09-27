@@ -1,0 +1,2 @@
+tweepy  # Library for accesing API Twitter
+python-dotenv>=0.14.0  # Manage enviroment vars
