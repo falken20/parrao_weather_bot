@@ -1,2 +1,4 @@
-tweepy  # Library for accesing API Twitter
+tweepy  # Open source package to access API Twitter
 python-dotenv>=0.14.0  # Manage enviroment vars
+pandas>=0.25.3
+lxml==4.5.2
