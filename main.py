@@ -7,6 +7,7 @@ import sys
 import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
+import pytz  # Work with time zones
 
 import config_fk
 
@@ -94,8 +95,8 @@ def get_weather_data():
         return None
 
 
-def parrao_weather_bot():
-    """ Process to create a bot for publishing weather data in Twitter """
+def parrao_weather_bot(request):
+    """ Method for publishing weather data in Twitter """
     
     logging.info(f'{os.getenv("ID_LOG", "")} Getting Twitter credentials')
     api = get_auth()
@@ -109,7 +110,8 @@ def parrao_weather_bot():
     try:
         dict_weather_data = get_weather_data()
         print(dict_weather_data)
-        tweet = f'Cercedilla weather at {datetime.now().strftime("%Y-%m-%d %H:%M")} -> ' \
+        tz_MAD = pytz.timezone('Europe/Madrid') 
+        tweet = f'Cercedilla weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")} -> ' \
                 f'{dict_weather_data[POSITION_TEMP]["Value"].replace(" ", "")} - ' \
                 f'{dict_weather_data[POSITION_RAIN]["Value"].replace(" ", "")} - ' \
                 f'{dict_weather_data[POSITION_HUMI]["Value"].replace(" ", "")} humidity - ' \
@@ -125,5 +127,5 @@ def parrao_weather_bot():
 if __name__ == '__main__':
 
     print(f'***** Starting {config_fk.SETUP_DATA["title"]} *****')
-    parrao_weather_bot()
+    parrao_weather_bot({})
     print(f'***** Shutdown {config_fk.SETUP_DATA["title"]} *****')
