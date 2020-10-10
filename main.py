@@ -9,8 +9,6 @@ from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 import pytz  # Work with time zones
 
-import config_fk
-
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,6 +27,7 @@ ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.getenv('ACCESS_TOKEN_SECRET')
 
 URL_WEATHER = 'http://meteomad.net/estaciones/cercedilla/cercedilla.htm'
+SOURCE = 'Estación Termopluviométrica de J.V.D'
 # This constant is for to know the position in the dict of the values
 POSITION_TEMP = 0
 POSITION_RAIN = 5
@@ -111,11 +110,12 @@ def parrao_weather_bot(request):
         dict_weather_data = get_weather_data()
         print(dict_weather_data)
         tz_MAD = pytz.timezone('Europe/Madrid') 
-        tweet = f'Cercedilla weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")} -> ' \
+        tweet = f'Weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")} -> ' \
                 f'{dict_weather_data[POSITION_TEMP]["Value"].replace(" ", "")} - ' \
                 f'{dict_weather_data[POSITION_RAIN]["Value"].replace(" ", "")} - ' \
                 f'{dict_weather_data[POSITION_HUMI]["Value"].replace(" ", "")} humidity - ' \
-                f'{dict_weather_data[POSITION_WIND]["Value"].replace(" ", "")}'
+                f'{dict_weather_data[POSITION_WIND]["Value"].replace(" ", "")}' \
+                f'\nSource: {SOURCE}'
 
         api.update_status(tweet)
         logging.info(f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n {tweet}')
