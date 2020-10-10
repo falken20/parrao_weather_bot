@@ -1,0 +1,28 @@
+cercedilla-weather-bot cloud function configuration:
+$ gcloud functions describe cercedilla-weather-bot --region=europe-west1
+
+availableMemoryMb: 128
+buildId: a8628b0b-666e-4ae6-8a56-3feef72b822a
+entryPoint: parrao_weather_bot
+environmentVariables:
+  ACCESS_TOKEN: ...
+  ACCESS_TOKEN_SECRET: ...
+  CONSUMER_KEY: ...
+  CONSUMER_SECRET: ...
+  ENV_PRO: Y
+  ID_LOG: '"ROD ->"'
+  LOG_LEVEL: INFO
+httpsTrigger:
+  url: https://europe-west1-cercedilla-weather-bot.cloudfunctions.net/cercedilla-weather-bot
+ingressSettings: ALLOW_ALL
+labels:
+  deployment-tool: console-cloud
+maxInstances: 1
+name: projects/cercedilla-weather-bot/locations/europe-west1/functions/cercedilla-weather-bot
+runtime: python37
+serviceAccountEmail: cercedilla-weather-bot@appspot.gserviceaccount.com
+sourceUploadUrl: https://storage.googleapis.com/gcf-upload-europe-west1-14ff4f9d-3f81-45a3-9da0-cdd06a8e31f2/14fc56d2-ac5c-4bba-9099-ddc6e21e7a4a.zip?GoogleAccessId=service-270183054523@gcf-admin-robot.iam.gserviceaccount.com&Expires=1602354993&Signature=QV2UMi3pgDyKP7OEyEmsgwfkqFdd%2FCo2YJ%2FUAqvHNj7jbVIKDnF%2Bm2vctoBWnzl4hmxUIDAasbg2OhvkpeEYowvQ%2BTy0uywqs0aVry%2B7un%2FZH8BlXJuVwFUuBlr09pHU%2BdvkEIdo00iIZf5y4c6AN10OnkbYyH7t%2B1RAjp2aBJBmzB5iMA836UUM95u08vlo2V%2FrDPUMZJTVmCfRNV2ZEJ5QCvNldPjdMdWafxuOg3Ek%2FvKKDOU%2BRljPzBPwkZKb4YZIv2GQFnJDvQ%2F0TuNqVH7ldhlTugYqeFHE51SJWL8YC5%2BdwTadFFe8MpKHVnhJzhuovICp51YIPeCuc6Yb3g%3D%3D
+status: ACTIVE
+timeout: 5s
+updateTime: '2020-10-10T18:07:26.510Z'
+versionId: '5'

@@ -1,0 +1,23 @@
+cron_cercedilla_weather cloud scheduler configuration:
+$ gcloud scheduler jobs describe cron_cercedilla_weather
+
+attemptDeadline: 180s
+description: Cron to call Cloud Function that get the weather in Cercedilla
+httpTarget:
+  body: e30=
+  headers:
+    Content-Type: application/octet-stream
+    User-Agent: Google-Cloud-Scheduler
+  httpMethod: POST
+  oidcToken:
+    audience: https://europe-west1-cercedilla-weather-bot.cloudfunctions.net/cercedilla-weather-bot
+    serviceAccountEmail: cercedilla-weather-bot@appspot.gserviceaccount.com
+  uri: https://europe-west1-cercedilla-weather-bot.cloudfunctions.net/cercedilla-weather-bot
+lastAttemptTime: '2020-10-10T19:00:00.705893Z'
+name: projects/cercedilla-weather-bot/locations/europe-west1/jobs/cron_cercedilla_weather
+schedule: 0 */3 * * *
+scheduleTime: '2020-10-10T22:00:00.559185Z'
+state: ENABLED
+status: {}
+timeZone: Europe/Madrid
+userUpdateTime: '2020-10-10T18:09:49Z'

@@ -126,6 +126,6 @@ def parrao_weather_bot(request):
 
 if __name__ == '__main__':
 
-    print(f'***** Starting {config_fk.SETUP_DATA["title"]} *****')
+    print(f'***** Starting cron *****')
     parrao_weather_bot({})
-    print(f'***** Shutdown {config_fk.SETUP_DATA["title"]} *****')
+    print(f'***** Shutdown cron *****')
