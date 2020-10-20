@@ -108,7 +108,7 @@ def parrao_weather_bot(request):
     # Get the current weather data and post the tweet
     try:
         dict_weather_data = get_weather_data()
-        print(dict_weather_data)
+        logging.info(f'{os.getenv("ID_LOG", "")} Data dictionary: \n {dict_weather_data}') 
         tz_MAD = pytz.timezone('Europe/Madrid') 
         tweet = f'Weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")} -> ' \
                 f'{dict_weather_data[POSITION_TEMP]["Value"].replace(" ", "")} - ' \
@@ -117,6 +117,7 @@ def parrao_weather_bot(request):
                 f'{dict_weather_data[POSITION_WIND]["Value"].replace(" ", "")}' \
                 f'\nSource: {SOURCE}'
 
+        logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
         api.update_status(tweet)
         logging.info(f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n {tweet}')
 
