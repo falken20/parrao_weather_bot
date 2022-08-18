@@ -4,12 +4,10 @@ import os
 import tweepy
 import logging
 import sys
+import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 import pytz  # Work with time zones
-
-import requests
-import json
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,13 +26,13 @@ CONSUMER_SECRET = os.getenv('CONSUMER_SECRET')
 ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.getenv('ACCESS_TOKEN_SECRET')
 
-# Weather station API data
-STATION_ID = os.environ.get('STATION_ID')
-API_KEY = os.environ.get('API_KEY')
-URL_WEATHER = f"https://api.weather.com/v2/pws/observations/current?stationId={STATION_ID}" \
-    f"&format=json&units=m&numericPrecision=decimal" \
-    f"&apiKey={API_KEY}"
-SOURCE = "Personal weather station in Cercedilla"
+URL_WEATHER = 'http://meteomad.net/estaciones/cercedilla/cercedilla.htm'
+SOURCE = 'Estación Termopluviométrica de J.V.D'
+# This constant is for to know the position in the dict of the values
+POSITION_TEMP = 0
+POSITION_RAIN = 5
+POSITION_HUMI = 1
+POSITION_WIND = 3
 
 
 def get_auth():
@@ -45,19 +43,53 @@ def get_auth():
     return tweepy.API(auth)
 
 
+def scrap_web(url):
+    """
+    For getting data weather of a specific url
+    :param url: The url of a specific web
+    """
+    try:
+        data = pd.read_html(url)
+        df = data[0]
+
+        logging.info(f'{os.getenv("ID_LOG", "")} url scrapping: {url}')
+        logging.debug(f'{os.getenv("ID_LOG", "")} Data to scrap:\n {data[0]}')
+
+        # Cleaning the info it doesn't neccesary
+        df = df.drop([4], axis=1)  # axis is the column name
+        df = df.drop([0, 1, 2, 3, 4, 5])
+
+        # Get seveal rows and cols
+        df = df.iloc[0:6, [0, 1]]
+
+        # We can change the name of the columns
+        df.columns = ('Parameter', 'Value')
+
+        # Clean and restore the index number because it is kind of
+        # annoying but it is not necessary
+        df = df.reset_index(drop=True)
+
+        logging.info(f'{os.getenv("ID_LOG", "")} Data scrapped:\n {df}')
+
+        return df
+
+    except Exception as err:
+        logging.error(
+            f'{os.getenv("ID_LOG", "")} ERROR scrapping web at line {sys.exc_info()[2].tb_lineno}: {err}')
+        return None
+
+
 def get_weather_data():
     """ Process to get current weather data  """
     logging.info(f'{os.getenv("ID_LOG", "")} Getting weather data...')
 
     try:
         # Getting a dataframe with the all data weather
-        response = requests.get(URL_WEATHER)
-        dict_weather = json.loads(response.text)
+        df_weather = scrap_web(URL_WEATHER)
+        # Transform to a list of dict, each dict with "Parameter" and "Value"
+        dict_weather = df_weather.to_dict(orient='records')
 
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Weather data JSON: \n {dict_weather}')
-
-        return dict_weather["observations"][0]
+        return dict_weather
     except Exception as err:
         logging.error(
             f'{os.getenv("ID_LOG", "")} ERROR saving weather data at line {sys.exc_info()[2].tb_lineno}: {err}')
@@ -81,21 +113,21 @@ def parrao_weather_bot(request):
     try:
         dict_weather_data = get_weather_data()
         logging.info(
-            f'{os.getenv("ID_LOG", "")} Preparing tweet...')
+            f'{os.getenv("ID_LOG", "")} Data dictionary: \n {dict_weather_data}')
         tz_MAD = pytz.timezone('Europe/Madrid')
-        tweet = f'Weather in Cercedilla🇪🇸 at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n' \
-                f'🌡  {dict_weather_data["metric"]["temp"]}º \n' \
-                f'🌧  {dict_weather_data["metric"]["precipTotal"]} mm \n' \
-                f'💧 {dict_weather_data["humidity"]} % \n' \
-                f'💨 {dict_weather_data["metric"]["windSpeed"]} km/h \n' \
-                f'🌞 {dict_weather_data["uv"]} UVI \n' \
-                f'Source: {SOURCE}'
+        tweet = f'Weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n' \
+                f'🌞 Puesta sol\n' \
+                f'🌡 {dict_weather_data[POSITION_TEMP]["Value"].replace(" ", "")}\n' \
+                f'🌧 {dict_weather_data[POSITION_RAIN]["Value"].replace(" ", "")}\n' \
+                f'💧 {dict_weather_data[POSITION_HUMI]["Value"].replace(" ", "")} humidity \n' \
+                f'💨 {dict_weather_data[POSITION_WIND]["Value"].replace(" ", "")} ' \
+                f'\nSource: {SOURCE}'
 
         logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
         if os.getenv("ENV_PRO", "N") == "Y":
             api.update_status(tweet)
         else:
-            logging.debug(f"\n************* TWEET:\n{tweet}\n*****************")
+            logging.info(f"\n************* TWEET:\n{tweet}\n*****************")
         logging.info(
             f'{os.getenv("ID_LOG", "")} Post tweet succesfully:\n{tweet}')
 

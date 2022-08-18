@@ -1,4 +1,3 @@
 tweepy  # Open source package to access API Twitter
 python-dotenv>=0.14.0  # Manage enviroment vars
-pandas
 lxml==4.5.2
