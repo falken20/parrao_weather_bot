@@ -38,6 +38,22 @@ python ./parrao_weather_bot.py
 ```bash
 ./scripts/check_project.sh
 ```
+
+##### Environment vars
+```bash
+ENV_PRO=N
+LOG_LEVEL=INFO
+
+# Weather station API key
+API_KEY=XXXXXXXXXXXX
+STATION_ID=XXXXXXXXXXXX
+
+# Twitter params
+CONSUMER_KEY=XXXXXXXXXXXX
+CONSUMER_SECRET=XXXXXXXXXXXX
+ACCESS_TOKEN=XXXXXXXXXXXX
+ACCESS_TOKEN_SECRET=XXXXXXXXXXXX
+```
 ---
 
 ##### Versions
