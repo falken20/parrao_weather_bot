@@ -45,13 +45,13 @@ def get_auth():
     return tweepy.API(auth)
 
 
-def get_weather_data():
+def get_weather_data(url=URL_WEATHER):
     """ Process to get current weather data  """
     logging.info(f'{os.getenv("ID_LOG", "")} Getting weather data...')
 
     try:
         # Getting a dataframe with the all data weather
-        response = requests.get(URL_WEATHER)
+        response = requests.get(url)
         dict_weather = json.loads(response.text)
 
         logging.info(
@@ -60,7 +60,7 @@ def get_weather_data():
         return dict_weather["observations"][0]
     except Exception as err:
         logging.error(
-            f'{os.getenv("ID_LOG", "")} ERROR saving weather data at line {sys.exc_info()[2].tb_lineno}: {err}')
+            f'{os.getenv("ID_LOG", "")} ERROR getting weather data at line {sys.exc_info()[2].tb_lineno}: {err}')
         return None
 
 
@@ -76,10 +76,11 @@ def parrao_weather_bot(request):
     except Exception as err:
         logging.error(
             f'{os.getenv("ID_LOG", "")} Error getting Twitter credentials: \n {format(err)}')
+        raise requests.RequestException
 
     # Get the current weather data and post the tweet
     try:
-        dict_weather_data = get_weather_data()
+        dict_weather_data = get_weather_data(URL_WEATHER)
         logging.info(
             f'{os.getenv("ID_LOG", "")} Preparing tweet...')
         tz_MAD = pytz.timezone('Europe/Madrid')
