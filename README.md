@@ -56,8 +56,13 @@ ACCESS_TOKEN_SECRET=XXXXXXXXXXXX
 ```
 ---
 
+##### Doc API wunderground.com
+
+API General doc: https://docs.google.com/document/d/1eKCnKXI9xnoMGRRzOL1xPCBihNV2rOet08qpE_gArAY/edit
+API Current conditions: https://ibm.co/v2PWSCC
+
 ##### Versions
 
-1.0.0 First version
 1.1.0 Change the data source to personal weather station
+1.0.0 First version
 

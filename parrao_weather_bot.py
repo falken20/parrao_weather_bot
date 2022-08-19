@@ -84,8 +84,8 @@ def parrao_weather_bot(request):
             f'{os.getenv("ID_LOG", "")} Preparing tweet...')
         tz_MAD = pytz.timezone('Europe/Madrid')
         tweet = f'Weather in Cercedilla🇪🇸 at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n' \
-                f'🌡  {dict_weather_data["metric"]["temp"]}º \n' \
-                f'🌧  {dict_weather_data["metric"]["precipTotal"]} mm \n' \
+                f'🌡 {dict_weather_data["metric"]["temp"]}º \n' \
+                f'🌧 {dict_weather_data["metric"]["precipTotal"]} mm \n' \
                 f'💧 {dict_weather_data["humidity"]} % \n' \
                 f'💨 {dict_weather_data["metric"]["windSpeed"]} km/h \n' \
                 f'🌞 {dict_weather_data["uv"]} UVI \n' \
@@ -93,6 +93,7 @@ def parrao_weather_bot(request):
 
         logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
         if os.getenv("ENV_PRO", "N") == "Y":
+            logging.info(f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
         else:
             logging.debug(f"\n************* TWEET:\n{tweet}\n*****************")
