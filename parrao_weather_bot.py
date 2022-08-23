@@ -72,7 +72,8 @@ def get_weather_data(url=URL_WEATHER):
 def parrao_weather_bot(request):
     """ Method for publishing weather data in Twitter """
 
-    logging.info(f'{os.getenv("ID_LOG", "")} Starting proccess to get CURRENT data....')
+    logging.info(
+        f'{os.getenv("ID_LOG", "")} Starting proccess to get CURRENT data....')
 
     # Twitter credentials
     api = get_auth()
@@ -118,7 +119,8 @@ def parrao_weather_bot(request):
 def parrao_weather_bot_daily(request):
     """ Method for publishing daily weather data in Twitter """
 
-    logging.info(f'{os.getenv("ID_LOG", "")} Starting proccess to get DAILY data....')
+    logging.info(
+        f'{os.getenv("ID_LOG", "")} Starting proccess to get DAILY data....')
 
     # Twitter credentials
     api = get_auth()
