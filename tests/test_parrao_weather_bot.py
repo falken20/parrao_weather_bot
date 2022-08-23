@@ -44,7 +44,7 @@ class TestSum(unittest.TestCase):
             parrao_weather_bot.parrao_weather_bot("")
 
         self.assertGreater(len(captured.records), 5)
-        self.assertIn("Source: Personal weather station in Cercedilla",
+        self.assertIn(parrao_weather_bot.SOURCE,
                       captured.records[len(captured.records) - 1].getMessage())
 
     def test_parrao_weather_bot_with_Twitter(self):
@@ -53,19 +53,42 @@ class TestSum(unittest.TestCase):
         with self.assertLogs() as captured:
             parrao_weather_bot.parrao_weather_bot("")
 
-        for e in captured.records:
-            print(e)
-            
-        self.assertEqual(len(captured.records), 8)
+        self.assertEqual(len(captured.records), 9)
         self.assertIn("Posting tweet in Tweeter",
-                      captured.records[6].getMessage())
-        self.assertIn("Source: Personal weather station in Cercedilla",
+                      captured.records[7].getMessage())
+        self.assertIn(parrao_weather_bot.SOURCE,
                       captured.records[len(captured.records) - 1].getMessage())
 
     def test_parrao_weather_bot_no_credentials(self):
         parrao_weather_bot.ACCESS_TOKEN = ""
         self.assertRaises(RequestException,
                           parrao_weather_bot.parrao_weather_bot, "")
+
+    def test_parrao_weather_bot_daily(self):
+        os.environ["ENV_PRO"] = "N"
+        with self.assertLogs() as captured:
+            parrao_weather_bot.parrao_weather_bot_daily("")
+
+        self.assertGreater(len(captured.records), 5)
+        self.assertIn(parrao_weather_bot.SOURCE,
+                      captured.records[len(captured.records) - 1].getMessage())
+
+    def test_parrao_weather_bot_daily_with_Twitter(self):
+        os.environ["ENV_PRO"] = "Y"
+        parrao_weather_bot.ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
+        with self.assertLogs() as captured:
+            parrao_weather_bot.parrao_weather_bot_daily("")
+
+        self.assertEqual(len(captured.records), 9)
+        self.assertIn("Posting tweet in Tweeter",
+                      captured.records[7].getMessage())
+        self.assertIn(parrao_weather_bot.SOURCE,
+                      captured.records[len(captured.records) - 1].getMessage())
+
+    def test_parrao_weather_bot_daily_no_credentials(self):
+        parrao_weather_bot.ACCESS_TOKEN = ""
+        self.assertRaises(RequestException,
+                          parrao_weather_bot.parrao_weather_bot_daily, "")
 
 
 if __name__ == '__main__':

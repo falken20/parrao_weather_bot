@@ -5,7 +5,7 @@ import tweepy
 import logging
 import sys
 from dotenv import load_dotenv, find_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz  # Work with time zones
 
 import requests
@@ -34,11 +34,16 @@ API_KEY = os.environ.get('API_KEY')
 URL_WEATHER = f"https://api.weather.com/v2/pws/observations/current?stationId={STATION_ID}" \
     f"&format=json&units=m&numericPrecision=decimal" \
     f"&apiKey={API_KEY}"
-SOURCE = "Personal weather station in Cercedilla"
+URL_WEATHER_DAILY = f"https://api.weather.com/v2/pws/history/daily?stationId={STATION_ID}" \
+    f"&format=json&units=m&numericPrecision=decimal" \
+    f"&apiKey={API_KEY}" \
+    f"&date="
+SOURCE = "Falken weather station"
 
 
 def get_auth():
     """Get user credentials in Twitter"""
+    logging.info(f'{os.getenv("ID_LOG", "")} Getting Twitter credentials...')
 
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
@@ -54,7 +59,7 @@ def get_weather_data(url=URL_WEATHER):
         response = requests.get(url)
         dict_weather = json.loads(response.text)
 
-        logging.info(
+        logging.debug(
             f'{os.getenv("ID_LOG", "")} Weather data JSON: \n {dict_weather}')
 
         return dict_weather["observations"][0]
@@ -67,7 +72,10 @@ def get_weather_data(url=URL_WEATHER):
 def parrao_weather_bot(request):
     """ Method for publishing weather data in Twitter """
 
-    logging.info(f'{os.getenv("ID_LOG", "")} Getting Twitter credentials')
+    logging.info(
+        f'{os.getenv("ID_LOG", "")} Starting proccess to get CURRENT data....')
+
+    # Twitter credentials
     api = get_auth()
     try:
         api.verify_credentials()
@@ -81,10 +89,12 @@ def parrao_weather_bot(request):
     # Get the current weather data and post the tweet
     try:
         dict_weather_data = get_weather_data(URL_WEATHER)
+
         logging.info(
             f'{os.getenv("ID_LOG", "")} Preparing tweet...')
+
         tz_MAD = pytz.timezone('Europe/Madrid')
-        tweet = f'Weather in Cercedilla🇪🇸 at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n' \
+        tweet = f'Current Weather in Cercedilla🇪🇸 at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n' \
                 f'🌡 {dict_weather_data["metric"]["temp"]}º \n' \
                 f'🌧 {dict_weather_data["metric"]["precipTotal"]} mm \n' \
                 f'💧 {dict_weather_data["humidity"]} % \n' \
@@ -94,12 +104,68 @@ def parrao_weather_bot(request):
 
         logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
         if os.getenv("ENV_PRO", "N") == "Y":
-            logging.info(f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
+            logging.info(
+                f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
         else:
-            logging.debug(f"\n************* TWEET:\n{tweet}\n*****************")
+            logging.info(
+                f"\n************* TWEET:\n{tweet}\n*****************")
         logging.info(
-            f'{os.getenv("ID_LOG", "")} Post tweet succesfully:\n{tweet}')
+            f'{os.getenv("ID_LOG", "")} Post tweet succesfully')
+
+    except Exception as err:
+        logging.error(
+            f'{os.getenv("ID_LOG", "")} Error trying to post the tweet of weather data: \n {format(err)}')
+
+
+def parrao_weather_bot_daily(request):
+    """ Method for publishing daily weather data in Twitter """
+
+    logging.info(
+        f'{os.getenv("ID_LOG", "")} Starting proccess to get DAILY data....')
+
+    # Twitter credentials
+    api = get_auth()
+    try:
+        api.verify_credentials()
+        logging.info(
+            f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully')
+    except Exception as err:
+        logging.error(
+            f'{os.getenv("ID_LOG", "")} Error getting Twitter credentials: \n {format(err)}')
+        raise requests.RequestException
+
+    # Get the current weather data and post the tweet
+    try:
+        # Get yesterday date for getting yerday weather resume
+        tz_MAD = pytz.timezone('Europe/Madrid')
+        day_forecast = (datetime.now(tz_MAD) - timedelta(1)).strftime("%Y%m%d")
+
+        dict_weather_data = get_weather_data(URL_WEATHER_DAILY + day_forecast)
+
+        logging.info(
+            f'{os.getenv("ID_LOG", "")} Preparing tweet...')
+        tweet = f'🟢 Daily resume in Cercedilla🇪🇸 ➡️ {(datetime.now(tz_MAD) - timedelta(1)).strftime("%Y-%m-%d")}\n' \
+                f'🔴 T. Max.: {dict_weather_data["metric"]["tempHigh"]}º \n' \
+                f'🔵 T. Min.: {dict_weather_data["metric"]["tempLow"]}º \n' \
+                f'🌧 Precip.: {dict_weather_data["metric"]["precipTotal"]} mm \n' \
+                f'💧 Humidi.: {dict_weather_data["humidityHigh"]} % - {dict_weather_data["humidityLow"]} %\n' \
+                f'💨 Max Gust Wind: {dict_weather_data["metric"]["windgustHigh"]} km/h\n' \
+                f'⏲ Press.: {dict_weather_data["metric"]["pressureMax"]} hpa -' \
+                f' {dict_weather_data["metric"]["pressureMin"]} hpa\n' \
+                f'🌞 UV High.: {dict_weather_data["uvHigh"]} UVI \n' \
+                f'Source: {SOURCE} ({dict_weather_data["obsTimeLocal"]})'
+
+        logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
+        if os.getenv("ENV_PRO", "N") == "Y":
+            logging.info(
+                f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
+            api.update_status(tweet)
+        else:
+            logging.info(
+                f"\n************* TWEET:\n{tweet}\n*****************")
+        logging.info(
+            f'{os.getenv("ID_LOG", "")} Post tweet succesfully')
 
     except Exception as err:
         logging.error(
@@ -110,4 +176,5 @@ if __name__ == '__main__':
 
     print('***** Starting cron *****')
     parrao_weather_bot({})
+    parrao_weather_bot_daily({})
     print('***** Shutdown cron *****')
