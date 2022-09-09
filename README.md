@@ -15,7 +15,8 @@ Process that every secific time get and publish weather data from Cercedilla in 
 
 ##### Deploy
 ```bash
-It has to copy the content of parrao_weather_bot.py file in Cloud Function section in Google Cloud Platform, inside main.py file.
+It has to copy the content of parrao_weather_bot.py file in Cloud Function 
+section in Google Cloud Platform, inside main.py file.
 ```
 ##### Setup
 
