@@ -53,6 +53,7 @@ def get_auth():
 def get_weather_data(url=URL_WEATHER):
     """ Process to get current weather data  """
     logging.info(f'{os.getenv("ID_LOG", "")} Getting weather data...')
+    logging.debug(f"URL: {url}")
 
     try:
         # Getting a dataframe with the all data weather
