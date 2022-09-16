@@ -50,7 +50,7 @@ def get_auth():
     return tweepy.API(auth)
 
 
-def get_weather_data(url=URL_WEATHER):
+def get_api_data(url=URL_WEATHER):
     """ Process to get current weather data  """
     logging.info(f'{os.getenv("ID_LOG", "")} Getting weather data...')
     logging.debug(f"URL: {url}")
@@ -89,7 +89,7 @@ def parrao_weather_bot(request):
 
     # Get the current weather data and post the tweet
     try:
-        dict_weather_data = get_weather_data(URL_WEATHER)
+        dict_weather_data = get_api_data(URL_WEATHER)
 
         logging.info(
             f'{os.getenv("ID_LOG", "")} Preparing tweet...')
@@ -142,7 +142,7 @@ def parrao_weather_bot_daily(request):
         tz_MAD = pytz.timezone('Europe/Madrid')
         day_forecast = (datetime.now(tz_MAD) - timedelta(1)).strftime("%Y%m%d")
 
-        dict_weather_data = get_weather_data(URL_WEATHER_DAILY + day_forecast)
+        dict_weather_data = get_api_data(URL_WEATHER_DAILY + day_forecast)
 
         logging.info(
             f'{os.getenv("ID_LOG", "")} Preparing tweet...')
