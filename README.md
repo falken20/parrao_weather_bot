@@ -69,3 +69,6 @@ API Current conditions: https://ibm.co/v2PWSCC
 1.1.0 Change the data source to personal weather station
 1.0.0 First version
 
+##### Versions
+- Google Cloud Functions
+- SqlAlchemy
