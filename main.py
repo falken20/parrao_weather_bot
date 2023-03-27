@@ -108,11 +108,10 @@ def parrao_weather_bot(request):
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
+            logging.info(f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n{tweet}')
         else:
             logging.info(
                 f"\n************* TWEET:\n{tweet}\n*****************")
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Post tweet succesfully')
 
     except Exception as err:
         logging.error(
@@ -162,11 +161,10 @@ def parrao_weather_bot_daily(request):
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
+            logging.info(f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n{tweet}')
         else:
             logging.info(
                 f"\n************* TWEET:\n{tweet}\n*****************")
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Post tweet succesfully')
 
     except Exception as err:
         logging.error(

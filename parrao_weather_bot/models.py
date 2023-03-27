@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime
 
 import db
 
+
 class Location(db.Base):
     __tablename__ = 't_location'
 
@@ -14,10 +15,10 @@ class Location(db.Base):
 
     def __repr__(self) -> str:
         return f"Location({self.id_location}, {self.desc_location}"
-    
+
     def __str__(self) -> str:
         return self.desc_location
-    
+
 
 class Weather(db.Base):
     __tablename__ = 't_weather'
@@ -34,6 +35,6 @@ class Weather(db.Base):
 
     def __repr__(self) -> str:
         return f"Weather: ({self.id_location}, {self.temp})"
-    
+
     def __str__(self) -> str:
         return super().__str__()

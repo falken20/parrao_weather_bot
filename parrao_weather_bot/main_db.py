@@ -1,7 +1,6 @@
 import logging
 
 import db
-from models import Location, Weather
 
 
 if __name__ == '__main__':
