@@ -5,6 +5,7 @@ from models import Location
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def create_default_location() -> None:
     location = db.session.get(Location, 1)
     if not location:
