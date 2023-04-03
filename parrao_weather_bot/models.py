@@ -16,7 +16,7 @@ class Location(db.Base):
         self.desc_location = desc_location
 
     def __repr__(self) -> str:
-        return f"Location({self.id_location}, {self.desc_location}"
+        return f"Location({self.id_location}, {self.desc_location})"
 
     def __str__(self) -> str:
         return self.desc_location
