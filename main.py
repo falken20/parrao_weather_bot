@@ -11,6 +11,8 @@ import pytz  # Work with time zones
 import requests
 import json
 
+from parrao_weather_bot.models import Weather
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -108,11 +110,17 @@ def parrao_weather_bot(request):
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
+            logging.info(f'{os.getenv("ID_LOG", "")} Post tweet in Twitter')
+
+            # Saving data in DB
+            Weather.write_weather(dict_weather_data)
+            logging.info(f'{os.getenv("ID_LOG", "")} Data succesfully saved in DB')
+
+            logging.info(
+                f'{os.getenv("ID_LOG", "")} Post and save tweet succesfully: \n{tweet}')
         else:
             logging.info(
                 f"\n************* TWEET:\n{tweet}\n*****************")
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Post tweet succesfully')
 
     except Exception as err:
         logging.error(
@@ -155,18 +163,19 @@ def parrao_weather_bot_daily(request):
                 f'⏲ Press.: {dict_weather_data["metric"]["pressureMax"]} hpa -' \
                 f' {dict_weather_data["metric"]["pressureMin"]} hpa\n' \
                 f'🌞 UV High.: {dict_weather_data["uvHigh"]} UVI \n' \
-                f'Source: {SOURCE} ({dict_weather_data["obsTimeLocal"]})'
+                f'Source: {SOURCE} ({datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")})'
+        #       f'Source: {SOURCE} ({dict_weather_data["obsTimeLocal"]})'
 
         logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
         if os.getenv("ENV_PRO", "N") == "Y":
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
+            logging.info(
+                f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n{tweet}')
         else:
             logging.info(
                 f"\n************* TWEET:\n{tweet}\n*****************")
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Post tweet succesfully')
 
     except Exception as err:
         logging.error(

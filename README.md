@@ -3,7 +3,7 @@
 <img src="./img/logo_app.png" alt="drawing" width="400"/>
 <a href="https://richionline-portfolio.nw.r.appspot.com"><img src="https://falken-home.herokuapp.com/static/home_project/img/falken_logo.png" width=50 alt="Personal Portfolio web"></a>
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-92%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
+![Version](https://img.shields.io/badge/version-1.2.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-91%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
 
 
 [![Richi web](https://img.shields.io/badge/web-richionline-blue)](https://richionline-portfolio.nw.r.appspot.com) [![Twitter](https://img.shields.io/twitter/follow/richionline?style=social)](https://twitter.com/richionline)
@@ -63,8 +63,11 @@ API General doc: https://docs.google.com/document/d/1eKCnKXI9xnoMGRRzOL1xPCBihNV
 API Current conditions: https://ibm.co/v2PWSCC
 
 ##### Versions
-
+1.3.0 Saving daily data in DB
 1.2.0 Add new cron for tweet daily resume
 1.1.0 Change the data source to personal weather station
 1.0.0 First version
 
+##### Learning tips
+- Google Cloud Functions
+- SqlAlchemy
