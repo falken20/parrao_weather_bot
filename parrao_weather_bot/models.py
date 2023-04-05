@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime
 from datetime import datetime
 import pytz  # Work with time zones
 
-import db
+from parrao_weather_bot import db
 
 
 class Location(db.Base):
