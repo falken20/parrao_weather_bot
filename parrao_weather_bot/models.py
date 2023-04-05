@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime
 from datetime import datetime
 import pytz  # Work with time zones
 
-from parrao_weather_bot import db
+import db
 
 
 class Location(db.Base):
@@ -28,12 +28,15 @@ class Weather(db.Base):
     id = Column(Integer, primary_key=True)
     id_location = Column(Integer, nullable=False)
     date = Column(DateTime, nullable=False)
-    temp = Column(Float)
-    rain = Column(Float)
-    humidity = Column(Float)
-    wind = Column(Float)
-    uv = Column(Float)
-    pressure = Column(Float)
+    temp_high = Column(Float)
+    temp_low = Column(Float)
+    rain_total = Column(Float)
+    humidity_high = Column(Float)
+    humidity_low = Column(Float)
+    wind_max = Column(Float)
+    uv_high = Column(Float)
+    pressure_max = Column(Float)
+    pressure_min = Column(Float)
 
     def __repr__(self) -> str:
         return f"Weather: ({self.id_location}, {self.temp})"
@@ -47,12 +50,15 @@ class Weather(db.Base):
         weather.id_location = 1  # Cercedilla
         weather.date = datetime.now(pytz.timezone('Europe/Madrid')
                                     ).strftime("%Y-%m-%d %H:%M")
-        weather.temp = float(dict_weather_data["metric"]["temp"])
-        weather.rain = float(dict_weather_data["metric"]["precipTotal"])
-        weather.humidity = float(dict_weather_data["humidity"])
-        weather.wind = float(dict_weather_data["metric"]["windSpeed"])
-        weather.uv = float(dict_weather_data["uv"])
-        weather.pressure = float(dict_weather_data["metric"]["pressure"])
+        weather.temp_high = float(dict_weather_data["metric"]["tempHigh"])
+        weather.temp_low = float(dict_weather_data["metric"]["tempLow"])
+        weather.rain_total = float(dict_weather_data["metric"]["precipTotal"])
+        weather.humidity_high = float(dict_weather_data["humidityHigh"])
+        weather.humidity_low = float(dict_weather_data["humidityLow"])
+        weather.wind_max = float(dict_weather_data["metric"]["windgustHigh"])
+        weather.uv_high = float(dict_weather_data["uvHigh"])
+        weather.pressure_max = float(dict_weather_data["metric"]["pressureMax"])
+        weather.pressure_min = float(dict_weather_data["metric"]["pressureMin"])
 
         db.session.add(weather)
         db.session.commit()

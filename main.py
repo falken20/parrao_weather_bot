@@ -110,14 +110,8 @@ def parrao_weather_bot(request):
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
-            logging.info(f'{os.getenv("ID_LOG", "")} Post tweet in Twitter')
-
-            # Saving data in DB
-            Weather.write_weather(dict_weather_data)
-            logging.info(f'{os.getenv("ID_LOG", "")} Data succesfully saved in DB')
-
             logging.info(
-                f'{os.getenv("ID_LOG", "")} Post and save tweet succesfully: \n{tweet}')
+                f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n{tweet}')
         else:
             logging.info(
                 f"\n************* TWEET:\n{tweet}\n*****************")
@@ -171,8 +165,14 @@ def parrao_weather_bot_daily(request):
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
             api.update_status(tweet)
+            logging.info(f'{os.getenv("ID_LOG", "")} Post tweet in Twitter')
+
+            # Saving data in DB
+            Weather.write_weather(dict_weather_data)
+            logging.info(f'{os.getenv("ID_LOG", "")} Data succesfully saved in DB')
+
             logging.info(
-                f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n{tweet}')
+                f'{os.getenv("ID_LOG", "")} Post and save tweet succesfully: \n{tweet}')
         else:
             logging.info(
                 f"\n************* TWEET:\n{tweet}\n*****************")

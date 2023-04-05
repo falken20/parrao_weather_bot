@@ -1,7 +1,7 @@
 import logging
 
-from parrao_weather_bot import db
-from parrao_weather_bot.models import Location
+import db
+from models import Location
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -23,4 +23,4 @@ if __name__ == '__main__':
     logging.info("Creating tables if they not exist...")
     db.Base.metadata.create_all(db.engine)
     create_default_location()
-    logging.info("Tables created succesfully")
+    logging.info("DB is ok for working")
