@@ -38,7 +38,8 @@ POSITION_WIND = 3
 def get_auth():
     """Get user credentials in Twitter"""
 
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth = tweepy.OAuth1UserHandler(
+        consumer_key=CONSUMER_KEY, consumer_secret=CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
     return tweepy.API(auth)
 

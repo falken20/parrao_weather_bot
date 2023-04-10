@@ -1,6 +1,6 @@
 import unittest
 
-from parrao_weather_bot import main_db, models
+from parrao_weather_bot import main_db, models, db
 
 
 class TestModel(unittest.TestCase):
@@ -18,3 +18,12 @@ class TestModel(unittest.TestCase):
         weather = models.Weather()
         self.assertIsNotNone(weather)
         print(weather)
+        weather.id_location = 1
+        weather.temp_high = 20
+        self.assertEqual(repr(weather), 'Weather(1, 20)')
+
+    def test_no_location(self):
+        default_location = db.session.get(models.Location, 1)
+        db.session.delete(default_location)
+        db.session.commit()
+        main_db.create_default_location()

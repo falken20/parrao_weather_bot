@@ -9,8 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 def create_default_location() -> None:
     location = db.session.get(Location, 1)
     if not location:
-        logging.info(
-            f"Location default {location.desc_location} doesn't exist")
+        logging.info("Location default doesn't exist")
         db.session.add(Location(1, 'Cercedilla'))
         db.session.commit()
     else:

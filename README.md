@@ -3,7 +3,7 @@
 <img src="./img/logo_app.png" alt="drawing" width="400"/>
 <a href="https://richionline-portfolio.nw.r.appspot.com"><img src="https://richionline-portfolio.nw.r.appspot.com/static/assets/falken_logo_trans.png" width=50 alt="Personal Portfolio web"></a>
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-91%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
+![Version](https://img.shields.io/badge/version-1.2.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-93%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
 
 
 [![Richi web](https://img.shields.io/badge/web-richionline-blue)](https://richionline-portfolio.nw.r.appspot.com) [![Twitter](https://img.shields.io/twitter/follow/richionline?style=social)](https://twitter.com/richionline)

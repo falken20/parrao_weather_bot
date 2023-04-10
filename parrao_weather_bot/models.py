@@ -39,7 +39,7 @@ class Weather(db.Base):
     pressure_min = Column(Float)
 
     def __repr__(self) -> str:
-        return f"Weather: ({self.id_location}, {self.temp})"
+        return f"Weather({self.id_location}, {self.temp_high})"
 
     def __str__(self) -> str:
         return super().__str__()

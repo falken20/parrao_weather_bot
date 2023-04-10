@@ -47,7 +47,7 @@ def get_auth():
     """Get user credentials in Twitter"""
     logging.info(f'{os.getenv("ID_LOG", "")} Getting Twitter credentials...')
 
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth = tweepy.OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
     return tweepy.API(auth)
 
@@ -169,7 +169,8 @@ def parrao_weather_bot_daily(request):
 
             # Saving data in DB
             Weather.write_weather(dict_weather_data)
-            logging.info(f'{os.getenv("ID_LOG", "")} Data succesfully saved in DB')
+            logging.info(
+                f'{os.getenv("ID_LOG", "")} Data succesfully saved in DB')
 
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Post and save tweet succesfully: \n{tweet}')
