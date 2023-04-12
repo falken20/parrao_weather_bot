@@ -15,7 +15,7 @@ steps:
 #   - '_BBVA_GAE_ENV=${_BBVA_GAE_ENV}'
 #   - '_TOPIC_NAME=${_TOPIC_NAME}'
 
-# Deploy policies, it is neccesaty update the notification channel
+# Deploy Cloud Function
 - name: 'google/cloud-sdk:slim'
   id: 'Cloud Functions deployment'
   dir: '.'
