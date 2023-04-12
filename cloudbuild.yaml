@@ -1,0 +1,33 @@
+# Vars set in Google console in Cloud Build Triggers
+# {} for vars defined in Cloud Build trigger
+# https://cloud.google.com/build/docs/deploying-builds/deploy-functions#yaml
+
+steps:
+
+# Deploy cloud Functions with sh
+# - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+#   id: 'Cloud Functions deployment'
+#   entrypoint: 'bash'
+#   args: ['-c', './deploy.sh']
+#   env: 
+#   # Set vars with the values of Cloud Build TRIGGER triggerCloudFunctions (Substitution variables)
+#   - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
+#   - '_BBVA_GAE_ENV=${_BBVA_GAE_ENV}'
+#   - '_TOPIC_NAME=${_TOPIC_NAME}'
+
+# Deploy policies, it is neccesaty update the notification channel
+- name: 'google/cloud-sdk:slim'
+  id: 'Cloud Functions deployment'
+  dir: '.'
+  args: [
+        'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
+        '--region', 'europe-west1',
+        '--runtime', 'python37',
+        '--entry-point', 'parrao-weather-bot',
+        '--memory', '128MB',
+        '--timeout', '120s',
+        '--env-vars-file', './credentials.yaml'
+        ]
+
+includes:
+- credentials.yaml

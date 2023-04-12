@@ -1,6 +1,7 @@
 # Falken
 temp/
 #*.sqlite3
+credentials.yaml
 
 # IDE folders
 # Mac
