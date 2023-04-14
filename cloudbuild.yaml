@@ -3,6 +3,40 @@
 # https://cloud.google.com/build/docs/deploying-builds/deploy-functions#yaml
 
 steps:
+# Deploy Cloud Function
+- name: 'google/cloud-sdk:slim'
+  id: 'Cloud Functions hourly bot'
+  dir: '.'
+  args: [
+        'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
+        '--region', 'europe-west1',
+        '--runtime', 'python37',
+        '--entry-point', 'parrao-weather-bot',
+        '--memory', '128MB',
+        '--timeout', '120s',
+        '--env-vars-file', './credentials.yaml',
+        '--service-account', 'cercedilla-weather-bot@appspot.gserviceaccount.com',
+        '--trigger-http',
+        '--source', '.'
+        ]
+
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  id: 'Cloud Function daily bot'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - cercedilla-weather-daily-bot
+  - --region=europe-west1
+  - --runtime=python37
+  - --entry-point=parrao-weather-bot-daily
+  - --memory=128MB
+  - --timeout=120s
+  - --env-vars-file='./credentials.yaml'
+  - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
+  - --trigger-http
+  - --source='.'
+
 
 # Deploy cloud Functions with sh
 # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -14,20 +48,3 @@ steps:
 #   - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
 #   - '_BBVA_GAE_ENV=${_BBVA_GAE_ENV}'
 #   - '_TOPIC_NAME=${_TOPIC_NAME}'
-
-# Deploy Cloud Function
-- name: 'google/cloud-sdk:slim'
-  id: 'Cloud Functions deployment'
-  dir: '.'
-  args: [
-        'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
-        '--region', 'europe-west1',
-        '--runtime', 'python37',
-        '--entry-point', 'parrao-weather-bot',
-        '--memory', '128MB',
-        '--timeout', '120s',
-        '--env-vars-file', './credentials.yaml'
-        ]
-
-includes:
-- credentials.yaml
