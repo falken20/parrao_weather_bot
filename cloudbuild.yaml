@@ -5,7 +5,7 @@
 steps:
 # Deploy Cloud Functions
 - name: 'google/cloud-sdk:slim'
-  id: 'Cloud Functions hourly bot'
+  id: 'Cloud Function hourly bot'
   dir: '.'
   args: [
         'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
@@ -19,7 +19,7 @@ steps:
         '--trigger-http',
         '--source', '.'
         ]
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+- name: 'google/cloud-sdk:slim'
   id: 'Cloud Function daily bot'
   args:
   - gcloud
@@ -31,11 +31,13 @@ steps:
   - --entry-point=parrao-weather-bot-daily
   - --memory=128MB
   - --timeout=120s
-  - --env-vars-file='./credentials.yaml'
+  - --env-vars-file=./credentials.yaml
   - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
   - --trigger-http
-  - --source='.'
-
+  - --source=.
+  env:
+  # Set var with the value of Cloud Build TRIGGER var
+  - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
 
 # Deploy cloud Functions with sh
 # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -45,5 +47,3 @@ steps:
 #   env: 
 #   # Set vars with the values of Cloud Build TRIGGER triggerCloudFunctions (Substitution variables)
 #   - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
-#   - '_BBVA_GAE_ENV=${_BBVA_GAE_ENV}'
-#   - '_TOPIC_NAME=${_TOPIC_NAME}'
