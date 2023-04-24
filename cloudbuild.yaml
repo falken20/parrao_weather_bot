@@ -14,7 +14,7 @@ steps:
         '--entry-point', 'parrao-weather-bot',
         '--memory', '128MB',
         '--timeout', '120s',
-        '--env-vars-file', './credentials.yaml',
+        # '--env-vars-file', './credentials.yaml', # This file doesn't upload to GitHub
         '--service-account', 'cercedilla-weather-bot@appspot.gserviceaccount.com',
         '--trigger-http',
         '--source', '.'
@@ -31,7 +31,7 @@ steps:
   - --entry-point=parrao-weather-bot-daily
   - --memory=128MB
   - --timeout=120s
-  - --env-vars-file=./credentials.yaml
+  # - --env-vars-file=./credentials.yaml # This file doesn't upload to GitHub
   - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
   - --trigger-http
   - --source=.
