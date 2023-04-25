@@ -5,7 +5,7 @@
 steps:
 # Deploy Cloud Functions
 - name: 'google/cloud-sdk:slim'
-  id: 'Cloud Function hourly bot'
+  id: 'Deploy Cloud Function hourly bot'
   dir: '.'
   args: [
         'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
@@ -20,7 +20,7 @@ steps:
         '--source', '.'
         ]
 - name: 'google/cloud-sdk:slim'
-  id: 'Cloud Function daily bot'
+  id: 'Deploy Cloud Function daily bot'
   args:
   - gcloud
   - functions
