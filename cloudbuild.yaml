@@ -11,7 +11,7 @@ steps:
         'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
         '--region', 'europe-west1',
         '--runtime', 'python37',
-        '--entry-point', 'parrao-weather-bot',
+        '--entry-point', 'parrao_weather_bot',
         '--memory', '128MB',
         '--timeout', '120s',
         # '--env-vars-file', './credentials.yaml', # This file doesn't upload to GitHub
@@ -28,7 +28,7 @@ steps:
   - cercedilla-weather-daily-bot
   - --region=europe-west1
   - --runtime=python37
-  - --entry-point=parrao-weather-bot-daily
+  - --entry-point=parrao_weather_bot_daily
   - --memory=128MB
   - --timeout=120s
   # - --env-vars-file=./credentials.yaml # This file doesn't upload to GitHub

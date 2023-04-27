@@ -20,19 +20,19 @@ cp -R parrao_weather_bot build/src
 
 echo ">>> Folder content parrao_weather_bot:"
 ls build/src/parrao_weather_bot
-echo ">>> Deploy cf-send_sigma Cloud Function. Current folder:"
+echo ">>> Deploy parrao-weather-bot Cloud Functions. Current folder:"
 cd build/src/parrao_weather_bot
 pwd
 
 gcloud functions deploy cercedilla-weather-bot --region=europe-west1 \
     --runtime=python37 --entry-point=parrao_weather_bot --memory=128MB --timeout=120s \
-    --env-vars-file ./credentials.yaml \
+    # --env-vars-file ./credentials.yaml \ # This file doesn't upload to GitHub
     --service-account=$_SERVICE_ACCOUNT \
     --trigger-http --source=.
 
 gcloud functions deploy cercedilla-weather-daily-bot --region=europe-west1 \
-    --runtime=python37 --entry-point=parrao_weather_bot --memory=128MB --timeout=120s \
-    --env-vars-file ./credentials.yaml \
+    --runtime=python37 --entry-point=parrao_weather_bot_daily --memory=128MB --timeout=120s \
+    # --env-vars-file ./credentials.yaml \ # This file doesn't upload to GitHub
     --service-account=$_SERVICE_ACCOUNT \
     --trigger-http --source=.
 
