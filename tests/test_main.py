@@ -15,7 +15,7 @@ import main
 load_dotenv(find_dotenv())
 
 
-class TestSum(unittest.TestCase):
+class TestParraoWeatherBot(unittest.TestCase):
 
     def test_environment_vars(self):
         self.assertIsNotNone(os.environ.get('CONSUMER_KEY'))

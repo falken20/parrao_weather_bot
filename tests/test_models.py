@@ -1,6 +1,8 @@
 import unittest
 
-from parrao_weather_bot import main_db, models, db
+import main_db
+import models
+import db
 
 
 class TestModel(unittest.TestCase):

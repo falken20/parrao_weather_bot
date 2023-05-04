@@ -1,7 +1,7 @@
 import logging
 
-from parrao_weather_bot import db
-from parrao_weather_bot.models import Location
+import db
+from models import Location
 
 logging.basicConfig(level=logging.DEBUG)
 

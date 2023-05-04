@@ -11,7 +11,7 @@ import pytz  # Work with time zones
 import requests
 import json
 
-from parrao_weather_bot.models import Weather
+from models import Weather
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
