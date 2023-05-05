@@ -35,3 +35,7 @@ cloud_function.txt
 cloud_scheduler.txt
 requirements-tests.txt
 deploy.sh
+.env_template
+README.md
+LICENSE
+cloudbuild.yaml

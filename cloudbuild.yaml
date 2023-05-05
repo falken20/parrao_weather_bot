@@ -19,10 +19,10 @@ steps:
           '--trigger-http',
           '--source', '.'
           ]
-  - name: 'google/cloud-sdk:slim'
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy Cloud Function daily bot'
     args:
-    - gcloud
+    # - gcloud
     - functions
     - deploy
     - cercedilla-weather-daily-bot
