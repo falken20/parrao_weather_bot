@@ -29,4 +29,9 @@ tests/
 # Ignore .pyc files
 *.py[cod]
 
-node_modules/
+parrao_weather_bot/
+check_app.sh
+cloud_function.txt
+cloud_scheduler.txt
+requirements-tests.txt
+deploy.sh

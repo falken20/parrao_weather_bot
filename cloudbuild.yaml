@@ -4,40 +4,40 @@
 
 steps:
 # Deploy Cloud Functions
-- name: 'google/cloud-sdk:slim'
-  id: 'Deploy Cloud Function hourly bot'
-  dir: '.'
-  args: [
-        'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
-        '--region', 'europe-west1',
-        '--runtime', 'python37',
-        '--entry-point', 'parrao_weather_bot',
-        '--memory', '128MB',
-        '--timeout', '120s',
-        # '--env-vars-file', './credentials.yaml', # This file doesn't upload to GitHub
-        '--service-account', 'cercedilla-weather-bot@appspot.gserviceaccount.com',
-        '--trigger-http',
-        '--source', '.'
-        ]
-- name: 'google/cloud-sdk:slim'
-  id: 'Deploy Cloud Function daily bot'
-  args:
-  - gcloud
-  - functions
-  - deploy
-  - cercedilla-weather-daily-bot
-  - --region=europe-west1
-  - --runtime=python37
-  - --entry-point=parrao_weather_bot_daily
-  - --memory=128MB
-  - --timeout=120s
-  # - --env-vars-file=./credentials.yaml # This file doesn't upload to GitHub
-  - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
-  - --trigger-http
-  - --source=.
-  env:
-  # Set var with the value of Cloud Build TRIGGER var
-  - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
+  - name: 'google/cloud-sdk:slim'
+    id: 'Deploy Cloud Function hourly bot'
+    dir: '.'
+    args: [
+          'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
+          '--region', 'europe-west1',
+          '--runtime', 'python37',
+          '--entry-point', 'parrao_weather_bot',
+          '--memory', '128MB',
+          '--timeout', '120s',
+          # '--env-vars-file', './credentials.yaml', # This file doesn't upload to GitHub
+          '--service-account', 'cercedilla-weather-bot@appspot.gserviceaccount.com',
+          '--trigger-http',
+          '--source', '.'
+          ]
+  - name: 'google/cloud-sdk:slim'
+    id: 'Deploy Cloud Function daily bot'
+    args:
+    - gcloud
+    - functions
+    - deploy
+    - cercedilla-weather-daily-bot
+    - --region=europe-west1
+    - --runtime=python37
+    - --entry-point=parrao_weather_bot_daily
+    - --memory=128MB
+    - --timeout=120s
+    # - --env-vars-file=./credentials.yaml # This file doesn't upload to GitHub
+    - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
+    - --trigger-http
+    - --source=.
+    env:
+    # Set var with the value of Cloud Build TRIGGER var
+    - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
 
 # Deploy cloud Functions with sh
 # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
