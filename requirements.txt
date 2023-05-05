@@ -3,3 +3,5 @@ python-dotenv>=0.14.0  # Manage enviroment vars
 lxml==4.5.2
 requests
 psycopg2-binary # PostgreSQL database adapter for the Python programming
+SQLAlchemy
+pytz
