@@ -168,6 +168,7 @@ def parrao_weather_bot_daily(request):
             logging.info(f'{os.getenv("ID_LOG", "")} Post tweet in Twitter')
 
             # Saving data in DB
+            logging.debug("Starting to save in DB...")
             Weather.write_weather(dict_weather_data)
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Data succesfully saved in DB')
