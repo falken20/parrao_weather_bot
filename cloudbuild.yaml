@@ -22,7 +22,7 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy Cloud Function daily bot'
     args:
-    # - gcloud
+    - gcloud
     - functions
     - deploy
     - cercedilla-weather-daily-bot
@@ -35,9 +35,9 @@ steps:
     - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
     - --trigger-http
     - --source=.
-    env:
+    # env:
     # Set var with the value of Cloud Build TRIGGER var
-    - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
+    # - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
 
 # Deploy cloud Functions with sh
 # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
