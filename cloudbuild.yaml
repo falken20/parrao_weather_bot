@@ -33,7 +33,7 @@ steps:
     - --memory=128MB
     - --timeout=120s
     # - --env-vars-file=./credentials.yaml # This file doesn't upload to GitHub
-    - --service-account='cercedilla-weather-bot@appspot.gserviceaccount.com'
+    - --service-account=cercedilla-weather-bot@appspot.gserviceaccount.com
     - --trigger-http
     - --source=.
     # env:
