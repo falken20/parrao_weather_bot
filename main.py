@@ -47,9 +47,14 @@ def get_auth():
     """Get user credentials in Twitter"""
     logging.info(f'{os.getenv("ID_LOG", "")} Getting Twitter credentials...')
 
-    auth = tweepy.OAuth1UserHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-    return tweepy.API(auth)
+    client = tweepy.Client(
+        consumer_key=CONSUMER_KEY,
+        consumer_secret=CONSUMER_SECRET,
+        access_token=ACCESS_TOKEN,
+        access_token_secret=ACCESS_TOKEN_SECRET
+    )
+
+    return client
 
 
 def get_api_data(url=URL_WEATHER):
@@ -79,9 +84,8 @@ def parrao_weather_bot(request):
         f'{os.getenv("ID_LOG", "")} Starting proccess to get CURRENT data....')
 
     # Twitter credentials
-    api = get_auth()
+    client_twitter = get_auth()
     try:
-        api.verify_credentials()
         logging.info(
             f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully')
     except Exception as err:
@@ -109,7 +113,7 @@ def parrao_weather_bot(request):
         if os.getenv("ENV_PRO", "N") == "Y":
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
-            api.update_status(tweet)
+            client_twitter.create_tweet(text=tweet)
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Post tweet succesfully: \n{tweet}')
         else:
@@ -128,9 +132,8 @@ def parrao_weather_bot_daily(request):
         f'{os.getenv("ID_LOG", "")} Starting proccess to get DAILY data....')
 
     # Twitter credentials
-    api = get_auth()
+    client_twitter = get_auth()
     try:
-        api.verify_credentials()
         logging.info(
             f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully')
     except Exception as err:
@@ -164,7 +167,7 @@ def parrao_weather_bot_daily(request):
         if os.getenv("ENV_PRO", "N") == "Y":
             logging.info(
                 f'{os.getenv("ID_LOG", "")} Posting tweet in Tweeter...')
-            api.update_status(tweet)
+            client_twitter.create_tweet(text=tweet)
             logging.info(f'{os.getenv("ID_LOG", "")} Post tweet in Twitter')
 
             # Saving data in DB
