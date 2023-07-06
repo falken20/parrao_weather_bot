@@ -85,9 +85,10 @@ class TestParraoWeatherBot(unittest.TestCase):
 
     def test_parrao_weather_bot_daily_no_credentials(self):
         main.ACCESS_TOKEN = ""
-        main.parrao_weather_bot_daily
-        self.assertRaises(RequestException,
-                          main.parrao_weather_bot_daily, "")
+        client_twitter = main.get_auth()
+        self.assertRaises(main.tweepy.Forbidden,
+                          client_twitter.create_tweet(text="."), "")        
+        # self.assertRaises(main.tweepy.Forbidden, main.parrao_weather_bot_daily, "")
 
 
 if __name__ == '__main__':

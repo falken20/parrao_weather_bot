@@ -5,6 +5,8 @@ echo "***** Unit Test *****"
 coverage run -m pytest -v 
 echo "***** Coverage tests *****"
 coverage report --omit="*/tests/*,*/venv/*,*scrapping*" -m ./*.py ./parrao_weather_bot/*.py 
+# Execute only one test
+# coverage run -m pytest -v tests/test_main.py::TestParraoWeatherBot::test_parrao_weather_bot_daily_no_credentials
 
 # Coverage report in html
 # coverage run -m pytest -v && coverage html --omit="*/test/*,*/venv/*"
