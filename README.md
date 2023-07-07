@@ -75,6 +75,7 @@ API Current conditions: https://ibm.co/v2PWSCC
 - 1.0.0 First version
 
 ##### Learning tips
+- Google Cloud Build
 - Google Cloud Functions
 - Google Cloud Scheduler
 - SqlAlchemy
