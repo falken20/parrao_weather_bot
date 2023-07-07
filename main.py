@@ -83,11 +83,11 @@ def parrao_weather_bot(request):
     logging.info(
         f'{os.getenv("ID_LOG", "")} Starting proccess to get CURRENT data....')
 
-    # Twitter credentials
-    client_twitter = get_auth()
     try:
+        # Twitter credentials
+        client_twitter = get_auth()
         logging.info(
-            f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully')
+            f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully: {client_twitter.get_me()}')
     except Exception as err:
         logging.error(
             f'{os.getenv("ID_LOG", "")} Error getting Twitter credentials: \n {format(err)}')
@@ -131,11 +131,11 @@ def parrao_weather_bot_daily(request):
     logging.info(
         f'{os.getenv("ID_LOG", "")} Starting proccess to get DAILY data....')
 
-    # Twitter credentials
-    client_twitter = get_auth()
     try:
+        # Twitter credentials
+        client_twitter = get_auth()
         logging.info(
-            f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully')
+            f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully: {client_twitter.get_me()}')
     except Exception as err:
         logging.error(
             f'{os.getenv("ID_LOG", "")} Error getting Twitter credentials: \n {format(err)}')
