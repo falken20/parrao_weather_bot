@@ -60,8 +60,7 @@ class TestParraoWeatherBot(unittest.TestCase):
 
     def test_parrao_weather_bot_no_credentials(self):
         main.ACCESS_TOKEN = ""
-        self.assertRaises(RequestException,
-                          main.parrao_weather_bot, "")
+        self.assertRaises(RequestException, main.parrao_weather_bot, "")
 
     def test_parrao_weather_bot_daily(self):
         os.environ["ENV_PRO"] = "N"
@@ -85,8 +84,7 @@ class TestParraoWeatherBot(unittest.TestCase):
 
     def test_parrao_weather_bot_daily_no_credentials(self):
         main.ACCESS_TOKEN = ""
-        self.assertRaises(RequestException,
-                          main.parrao_weather_bot_daily, "")
+        self.assertRaises(RequestException, main.parrao_weather_bot_daily, "")
 
 
 if __name__ == '__main__':
