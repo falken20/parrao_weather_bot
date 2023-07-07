@@ -67,13 +67,14 @@ API General doc: https://docs.google.com/document/d/1eKCnKXI9xnoMGRRzOL1xPCBihNV
 API Current conditions: https://ibm.co/v2PWSCC
 
 ##### Versions
-1.4.0 Twitter API 2.0
-1.3.1 cloudbuild.yaml to deploy functions
-1.3.0 Saving daily data in DB
-1.2.0 Add new cron for tweet daily resume
-1.1.0 Change the data source to personal weather station
-1.0.0 First version
+- 1.4.0 Twitter API 2.0
+- 1.3.1 cloudbuild.yaml to deploy functions
+- 1.3.0 Saving daily data in DB
+- 1.2.0 Add new cron for tweet daily resume
+- 1.1.0 Change the data source to personal weather station
+- 1.0.0 First version
 
 ##### Learning tips
 - Google Cloud Functions
+- Google Cloud Scheduler
 - SqlAlchemy
