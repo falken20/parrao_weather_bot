@@ -10,7 +10,7 @@ steps:
     args: [
           'gcloud', 'functions', 'deploy', 'cercedilla-weather-bot', 
           '--region', 'europe-west1',
-          '--runtime', 'python37',
+          '--runtime', 'python310',
           '--entry-point', 'parrao_weather_bot',
           '--memory', '128MB',
           '--timeout', '120s',
@@ -28,7 +28,7 @@ steps:
     - deploy
     - cercedilla-weather-daily-bot
     - --region=europe-west1
-    - --runtime=python37
+    - --runtime=python310
     - --entry-point=parrao_weather_bot_daily
     - --memory=128MB
     - --timeout=120s
