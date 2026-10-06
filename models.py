@@ -48,8 +48,7 @@ class Weather(db.Base):
     def write_weather(dict_weather_data):
         weather = Weather()
         weather.id_location = 1  # Cercedilla
-        weather.date = datetime.now(pytz.timezone('Europe/Madrid')
-                                    ).strftime("%Y-%m-%d %H:%M")
+        weather.date = datetime.now(pytz.timezone('Europe/Madrid'))
         weather.temp_high = float(dict_weather_data["metric"]["tempHigh"])
         weather.temp_low = float(dict_weather_data["metric"]["tempLow"])
         weather.rain_total = float(dict_weather_data["metric"]["precipTotal"])
