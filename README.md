@@ -3,15 +3,15 @@
 <img src="./img/logo_app.png" alt="drawing" width="400"/>
 <a href="https://richionline-portfolio.nw.r.appspot.com"><img src="https://richionline-portfolio.nw.r.appspot.com/static/assets/falken_logo_trans.png" width=50 alt="Personal Portfolio web"></a>
 
-![Version](https://img.shields.io/badge/version-1.4.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-93%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
+![Version](https://img.shields.io/badge/version-1.5.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-95%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
 
 
-[![Richi web](https://img.shields.io/badge/web-richionline-blue)](https://richionline-portfolio.nw.r.appspot.com) [![Twitter](https://img.shields.io/twitter/follow/richionline?style=social)](https://twitter.com/richionline)
+[![Richi web](https://img.shields.io/badge/web-richionline-blue)](https://richionline-portfolio.nw.r.appspot.com)
 
 </div>
 
 ---
-Process that every secific time get and publish weather data from Cercedilla in Twitter through Google Cloud Platform technology. A Cloud Function that get the weather data and publish it, and a Cloud Scheduler that every X time call the Cloud Function.
+Process that periodically retrieves and publishes weather data from Cercedilla to a Telegram channel using Google Cloud Platform. Cloud Functions fetch and publish the data, and Cloud Scheduler triggers them.
 
 ##### Deploy
 ```bash
@@ -38,6 +38,16 @@ pip install -r requirements-tests.txt
 python ./parrao_weather_bot.py
 ```
 
+##### Sending a Telegram message from the terminal
+
+```bash
+python -m telegram_cli "Test message"
+printf 'First line\nSecond line\n' | python -m telegram_cli
+python -m telegram_cli --dry-run "Test message"
+```
+
+The CLI uses `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from `.env`. Sending is real unless `--dry-run` is specified.
+
 ##### Running the tests with pytest and coverage
 
 ```bash
@@ -53,12 +63,12 @@ LOG_LEVEL=INFO
 API_KEY=XXXXXXXXXXXX
 STATION_ID=XXXXXXXXXXXX
 
-# Twitter params
-CONSUMER_KEY=XXXXXXXXXXXX
-CONSUMER_SECRET=XXXXXXXXXXXX
-ACCESS_TOKEN=XXXXXXXXXXXX
-ACCESS_TOKEN_SECRET=XXXXXXXXXXXX
+# Telegram bot
+TELEGRAM_BOT_TOKEN=XXXXXXXXXXXX
+TELEGRAM_CHAT_ID=@your_channel_or_chat_id
 ```
+
+Configure these values in both Cloud Functions as runtime environment variables. Add the bot as a channel administrator with permission to publish.
 ---
 
 ##### Doc API wunderground.com
@@ -67,11 +77,11 @@ API General doc: https://docs.google.com/document/d/1eKCnKXI9xnoMGRRzOL1xPCBihNV
 API Current conditions: https://ibm.co/v2PWSCC
 
 ##### Versions
+- 1.5.0 Replace X publishing with Telegram Bot API
 - 1.4.1 Python version of Cloud Functions raise to Python 3.10
-- 1.4.0 Twitter API 2.0
 - 1.3.1 cloudbuild.yaml to deploy functions
 - 1.3.0 Saving daily data in DB
-- 1.2.0 Add new cron for tweet daily resume
+- 1.2.0 Add new cron for daily weather summary
 - 1.1.0 Change the data source to personal weather station
 - 1.0.0 First version
 

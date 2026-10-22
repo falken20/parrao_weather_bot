@@ -3,89 +3,159 @@
 File to tests using unittest library
 """
 
-import unittest
 import os
-from dotenv import load_dotenv, find_dotenv
-from requests import RequestException
+import unittest
+from unittest.mock import Mock, patch
+
+import requests
 
 import main
+from telegram_client import TelegramDeliveryError
 
 
-# Load env file
-load_dotenv(find_dotenv())
+CURRENT_WEATHER = {
+    "metric": {"temp": 14.8, "precipTotal": 1.2, "windSpeed": 3.4},
+    "humidity": 60,
+    "uv": 2,
+}
+DAILY_WEATHER = {
+    "metric": {
+        "tempHigh": 20.2,
+        "tempLow": 9.7,
+        "precipTotal": 3.51,
+        "windgustHigh": 9.3,
+        "pressureMax": 1020.12,
+        "pressureMin": 1017.44,
+    },
+    "humidityHigh": 99,
+    "humidityLow": 66,
+    "uvHigh": 5,
+}
+WEATHER_URL = "https://weather.test/current"
 
 
-class TestParraoWeatherBot(unittest.TestCase):
+class TestMain(unittest.TestCase):
 
-    def test_environment_vars(self):
-        self.assertIsNotNone(os.environ.get('CONSUMER_KEY'))
-        self.assertIsNotNone(os.environ.get('CONSUMER_SECRET'))
-        self.assertIsNotNone(os.environ.get('ACCESS_TOKEN'))
-        self.assertIsNotNone(os.environ.get('ACCESS_TOKEN_SECRET'))
-        self.assertIsNotNone(os.environ.get('STATION_ID'))
-        self.assertIsNotNone(os.environ.get('API_KEY'))
+    def test_get_api_data_returns_first_observation(self):
+        response = Mock()
+        response.json.return_value = {
+            "observations": [CURRENT_WEATHER, {"metric": {"temp": 99}}]
+        }
+        with patch("main.requests.get", return_value=response) as get:
+            result = main.get_api_data(WEATHER_URL)
 
-    def test_get_weather_data(self):
-        # Weather station API data
-        STATION_ID = os.environ.get('STATION_ID')
-        API_KEY = os.environ.get('API_KEY')
-        URL_WEATHER = f"https://api.weather.com/v2/pws/observations/current?stationId={STATION_ID}" \
-            f"&format=json&units=m&numericPrecision=decimal" \
-            f"&apiKey={API_KEY}"
+        self.assertEqual(result, CURRENT_WEATHER)
+        get.assert_called_once_with(WEATHER_URL, timeout=15)
+        response.raise_for_status.assert_called_once_with()
 
-        self.assertIsNotNone(main.get_api_data(URL_WEATHER))
+    def test_get_api_data_returns_none_on_http_error(self):
+        with patch("main.requests.get", side_effect=requests.Timeout):
+            self.assertIsNone(main.get_api_data(WEATHER_URL))
 
-    def test_get_weather_data_error(self):
-        self.assertIsNone(main.get_api_data(""))
+    def test_get_api_data_returns_none_on_invalid_payload(self):
+        response = Mock()
+        response.json.return_value = {"observations": []}
+        with patch("main.requests.get", return_value=response):
+            self.assertIsNone(main.get_api_data(WEATHER_URL))
 
-    def test_parrao_weather_bot(self):
-        os.environ["ENV_PRO"] = "N"
-        with self.assertLogs() as captured:
-            main.parrao_weather_bot("")
+    def test_current_handler_returns_502_when_weather_is_unavailable(self):
+        with patch("main.get_api_data", return_value=None), patch(
+            "main.send_telegram_message"
+        ) as send:
+            result = main.parrao_weather_bot({})
 
-        self.assertGreater(len(captured.records), 5)
-        self.assertIn(main.SOURCE,
-                      captured.records[len(captured.records) - 1].getMessage())
+        self.assertEqual(result, ("Could not retrieve current weather", 502))
+        send.assert_not_called()
 
-    def test_parrao_weather_bot_with_Twitter(self):
-        os.environ["ENV_PRO"] = "Y"
-        main.ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
-        with self.assertLogs() as captured:
-            main.parrao_weather_bot("")
+    def test_current_handler_dry_run_does_not_send(self):
+        with patch.dict(os.environ, {"ENV_PRO": "N"}), patch(
+            "main.get_api_data", return_value=CURRENT_WEATHER
+        ), patch("main.send_telegram_message") as send:
+            result = main.parrao_weather_bot({})
 
-        self.assertGreater(len(captured.records), 5)
-        # self.assertIn("Posting tweet in Tweeter", captured.records[6].getMessage())
-        self.assertIn(main.SOURCE,
-                      captured.records[len(captured.records) - 1].getMessage())
+        self.assertEqual(result, ("Dry run; message not sent", 200))
+        send.assert_not_called()
 
-    def test_parrao_weather_bot_no_credentials(self):
-        main.ACCESS_TOKEN = ""
-        self.assertRaises(RequestException, main.parrao_weather_bot, "")
+    def test_current_handler_sends_formatted_message(self):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=CURRENT_WEATHER
+        ), patch("main.send_telegram_message") as send:
+            result = main.parrao_weather_bot({})
 
-    def test_parrao_weather_bot_daily(self):
-        os.environ["ENV_PRO"] = "N"
-        with self.assertLogs() as captured:
-            main.parrao_weather_bot_daily("")
+        self.assertEqual(result, ("Message sent", 200))
+        message = send.call_args.args[0]
+        self.assertIn("14.8º", message)
+        self.assertIn(main.SOURCE, message)
 
-        self.assertGreater(len(captured.records), 5)
-        self.assertIn(main.SOURCE,
-                      captured.records[len(captured.records) - 1].getMessage())
+    def test_current_handler_returns_502_when_telegram_fails(self):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=CURRENT_WEATHER
+        ), patch(
+            "main.send_telegram_message",
+            side_effect=TelegramDeliveryError("rejected"),
+        ):
+            result = main.parrao_weather_bot({})
 
-    def test_parrao_weather_bot_daily_with_Twitter(self):
-        os.environ["ENV_PRO"] = "Y"
-        main.ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
-        with self.assertLogs() as captured:
-            main.parrao_weather_bot_daily("")
+        self.assertEqual(result, ("Telegram delivery failed", 502))
 
-        self.assertGreater(len(captured.records), 5)
-        # self.assertIn("Posting tweet in Tweeter", captured.records[7].getMessage())
-        self.assertIn(main.SOURCE,
-                      captured.records[len(captured.records) - 1].getMessage())
+    def test_daily_handler_requests_yesterday_and_saves_after_sending(self):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=DAILY_WEATHER
+        ) as get_weather, patch(
+            "main.send_telegram_message"
+        ) as send, patch.object(main.Weather, "write_weather") as save:
+            result = main.parrao_weather_bot_daily({})
 
-    def test_parrao_weather_bot_daily_no_credentials(self):
-        main.ACCESS_TOKEN = ""
-        self.assertRaises(RequestException, main.parrao_weather_bot_daily, "")
+        self.assertEqual(result, ("Message sent", 200))
+        self.assertTrue(
+            get_weather.call_args.args[0].startswith(main.URL_WEATHER_DAILY)
+        )
+        self.assertRegex(get_weather.call_args.args[0], r"date=\d{8}$")
+        self.assertIn("T. Max.: 20.2º", send.call_args.args[0])
+        save.assert_called_once_with(DAILY_WEATHER)
 
+    def test_daily_handler_returns_502_when_weather_is_unavailable(self):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=None
+        ), patch("main.send_telegram_message") as send, patch.object(
+            main.Weather, "write_weather"
+        ) as save:
+            result = main.parrao_weather_bot_daily({})
 
-if __name__ == '__main__':
-    unittest.main()
+        self.assertEqual(result, ("Could not retrieve daily weather", 502))
+        send.assert_not_called()
+        save.assert_not_called()
+
+    def test_daily_handler_does_not_save_when_telegram_fails(self):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=DAILY_WEATHER
+        ), patch(
+            "main.send_telegram_message",
+            side_effect=TelegramDeliveryError("rejected"),
+        ), patch.object(main.Weather, "write_weather") as save:
+            result = main.parrao_weather_bot_daily({})
+
+        self.assertEqual(result, ("Telegram delivery failed", 502))
+        save.assert_not_called()
+
+    def test_daily_handler_reports_database_failure(self):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=DAILY_WEATHER
+        ), patch("main.send_telegram_message"), patch.object(
+            main.Weather, "write_weather", side_effect=RuntimeError
+        ):
+            result = main.parrao_weather_bot_daily({})
+
+        self.assertEqual(result, ("Could not save daily weather", 500))
+
+    def test_daily_dry_run_does_not_save_to_database(self):
+        with patch.dict(os.environ, {"ENV_PRO": "N"}), patch(
+            "main.get_api_data", return_value=DAILY_WEATHER
+        ), patch("main.send_telegram_message") as send, patch.object(
+            main.Weather, "write_weather"
+        ) as save:
+            result = main.parrao_weather_bot_daily({})
+
+        self.assertEqual(result, ("Dry run; message not sent", 200))
+        send.assert_not_called()
+        save.assert_not_called()

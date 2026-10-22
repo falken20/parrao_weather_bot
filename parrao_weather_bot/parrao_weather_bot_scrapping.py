@@ -1,13 +1,13 @@
 # by Richi Rod AKA @richionline / falken20
 
 import os
-import tweepy
 import logging
 import sys
 import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 import pytz  # Work with time zones
+from telegram_client import TelegramDeliveryError, send_telegram_message
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,12 +20,6 @@ load_dotenv(find_dotenv())
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'ERROR'))
 SECRET_KEY = os.getenv('SECRET_KEY', default='xsd--ammmss!!"kd(sss')
 
-# Credentials for twitter API
-CONSUMER_KEY = os.environ.get('CONSUMER_KEY')
-CONSUMER_SECRET = os.getenv('CONSUMER_SECRET')
-ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
-ACCESS_TOKEN_SECRET = os.getenv('ACCESS_TOKEN_SECRET')
-
 URL_WEATHER = 'http://meteomad.net/estaciones/cercedilla/cercedilla.htm'
 SOURCE = 'Estación Termopluviométrica de J.V.D'
 # This constant is for to know the position in the dict of the values
@@ -33,15 +27,6 @@ POSITION_TEMP = 0
 POSITION_RAIN = 5
 POSITION_HUMI = 1
 POSITION_WIND = 3
-
-
-def get_auth():
-    """Get user credentials in Twitter"""
-
-    auth = tweepy.OAuth1UserHandler(
-        consumer_key=CONSUMER_KEY, consumer_secret=CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-    return tweepy.API(auth)
 
 
 def scrap_web(url):
@@ -76,7 +61,8 @@ def scrap_web(url):
 
     except Exception as err:
         logging.error(
-            f'{os.getenv("ID_LOG", "")} ERROR scrapping web at line {sys.exc_info()[2].tb_lineno}: {err}')
+            f'{os.getenv("ID_LOG", "")} ERROR scrapping web at line '
+            f'{sys.exc_info()[2].tb_lineno}: {type(err).__name__}')
         return None
 
 
@@ -93,48 +79,42 @@ def get_weather_data():
         return dict_weather
     except Exception as err:
         logging.error(
-            f'{os.getenv("ID_LOG", "")} ERROR saving weather data at line {sys.exc_info()[2].tb_lineno}: {err}')
+            f'{os.getenv("ID_LOG", "")} ERROR saving weather data at line '
+            f'{sys.exc_info()[2].tb_lineno}: {type(err).__name__}')
         return None
 
 
 def parrao_weather_bot(request):
-    """ Method for publishing weather data in Twitter """
-
-    logging.info(f'{os.getenv("ID_LOG", "")} Getting Twitter credentials')
-    api = get_auth()
-    try:
-        api.verify_credentials()
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Twitter authentication succesfully')
-    except Exception as err:
-        logging.error(
-            f'{os.getenv("ID_LOG", "")} Error getting Twitter credentials: \n {format(err)}')
-
-    # Get the current weather data and post the tweet
+    """Fetch and publish scraped weather through Telegram."""
     try:
         dict_weather_data = get_weather_data()
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Data dictionary: \n {dict_weather_data}')
-        tz_MAD = pytz.timezone('Europe/Madrid')
-        tweet = f'Weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n' \
-                f'🌞 Puesta sol\n' \
-                f'🌡 {dict_weather_data[POSITION_TEMP]["Value"].replace(" ", "")}\n' \
-                f'🌧 {dict_weather_data[POSITION_RAIN]["Value"].replace(" ", "")}\n' \
-                f'💧 {dict_weather_data[POSITION_HUMI]["Value"].replace(" ", "")} humidity \n' \
-                f'💨 {dict_weather_data[POSITION_WIND]["Value"].replace(" ", "")} ' \
-                f'\nSource: {SOURCE}'
+        if dict_weather_data is None:
+            return "Could not retrieve weather", 502
 
-        logging.info(f'{os.getenv("ID_LOG", "")} Starting to post the tweet')
+        tz_MAD = pytz.timezone('Europe/Madrid')
+        message = (
+            f'Weather at {datetime.now(tz_MAD).strftime("%Y-%m-%d %H:%M")}\n'
+            f'🌞 Puesta sol\n'
+            f'🌡 {dict_weather_data[POSITION_TEMP]["Value"].replace(" ", "")}\n'
+            f'🌧 {dict_weather_data[POSITION_RAIN]["Value"].replace(" ", "")}\n'
+            f'💧 {dict_weather_data[POSITION_HUMI]["Value"].replace(" ", "")} '
+            f'humidity\n'
+            f'💨 {dict_weather_data[POSITION_WIND]["Value"].replace(" ", "")}\n'
+            f'Source: {SOURCE}'
+        )
+
         if os.getenv("ENV_PRO", "N") == "Y":
-            api.update_status(tweet)
+            send_telegram_message(message)
         else:
-            logging.info(f"\n************* TWEET:\n{tweet}\n*****************")
-        logging.info(
-            f'{os.getenv("ID_LOG", "")} Post tweet succesfully:\n{tweet}')
+            logging.info("Dry run; Telegram message not sent:\n%s", message)
+        return "Message sent", 200
+    except TelegramDeliveryError as err:
+        logging.error("Telegram delivery failed: %s", err)
+        return "Telegram delivery failed", 502
 
     except Exception as err:
-        logging.error(
-            f'{os.getenv("ID_LOG", "")} Error trying to post the tweet of weather data: \n {format(err)}')
+        logging.error("Weather publication failed: %s", type(err).__name__)
+        return "Weather publication failed", 502
 
 
 if __name__ == '__main__':
