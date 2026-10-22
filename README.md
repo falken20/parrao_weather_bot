@@ -38,6 +38,16 @@ pip install -r requirements-tests.txt
 python ./parrao_weather_bot.py
 ```
 
+##### Sending a Telegram message from the terminal
+
+```bash
+python -m telegram_cli "Test message"
+printf 'First line\nSecond line\n' | python -m telegram_cli
+python -m telegram_cli --dry-run "Test message"
+```
+
+The CLI uses `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from `.env`. Sending is real unless `--dry-run` is specified.
+
 ##### Running the tests with pytest and coverage
 
 ```bash
