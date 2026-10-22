@@ -1,31 +1,31 @@
 import os
 
 import pytest
-import requests
 
-os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 import db  # noqa: E402
-import main  # noqa: E402
 import models  # noqa: E402,F401
+import telegram_client  # noqa: E402
 
 
-class FakeTwitterClient:
-    def get_me(self):
-        return {"data": {"id": "test-user"}}
+class FakeTelegramResponse:
+    def raise_for_status(self):
+        return None
 
-    def create_tweet(self, text):
-        return {"data": {"id": "test-tweet"}}
+    def json(self):
+        return {"ok": True, "result": {"message_id": 1}}
 
 
 @pytest.fixture(autouse=True)
 def isolate_external_services(monkeypatch):
-    def fake_get_auth():
-        if not main.ACCESS_TOKEN:
-            raise requests.RequestException("Twitter credentials are missing")
-        return FakeTwitterClient()
-
-    monkeypatch.setattr(main, "get_auth", fake_get_auth)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "test-token")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "-1001234567890")
+    monkeypatch.setattr(
+        telegram_client.requests,
+        "post",
+        lambda *args, **kwargs: FakeTelegramResponse(),
+    )
     yield
     db.session.rollback()
 

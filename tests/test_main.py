@@ -5,10 +5,11 @@ File to tests using unittest library
 
 import unittest
 import os
+from unittest.mock import patch
 from dotenv import load_dotenv, find_dotenv
-from requests import RequestException
 
 import main
+from telegram_client import send_telegram_message
 
 
 # Load env file
@@ -18,10 +19,8 @@ load_dotenv(find_dotenv())
 class TestParraoWeatherBot(unittest.TestCase):
 
     def test_environment_vars(self):
-        self.assertIsNotNone(os.environ.get('CONSUMER_KEY'))
-        self.assertIsNotNone(os.environ.get('CONSUMER_SECRET'))
-        self.assertIsNotNone(os.environ.get('ACCESS_TOKEN'))
-        self.assertIsNotNone(os.environ.get('ACCESS_TOKEN_SECRET'))
+        self.assertTrue(os.environ.get('TELEGRAM_BOT_TOKEN'))
+        self.assertTrue(os.environ.get('TELEGRAM_CHAT_ID'))
         self.assertIsNotNone(os.environ.get('STATION_ID'))
         self.assertIsNotNone(os.environ.get('API_KEY'))
 
@@ -29,62 +28,76 @@ class TestParraoWeatherBot(unittest.TestCase):
         # Weather station API data
         STATION_ID = os.environ.get('STATION_ID')
         API_KEY = os.environ.get('API_KEY')
-        URL_WEATHER = f"https://api.weather.com/v2/pws/observations/current?stationId={STATION_ID}" \
-            f"&format=json&units=m&numericPrecision=decimal" \
+        URL_WEATHER = (
+            "https://api.weather.com/v2/pws/observations/current?"
+            f"stationId={STATION_ID}&format=json&units=m&"
+            "numericPrecision=decimal"
             f"&apiKey={API_KEY}"
+        )
 
         self.assertIsNotNone(main.get_api_data(URL_WEATHER))
 
     def test_get_weather_data_error(self):
         self.assertIsNone(main.get_api_data(""))
 
+    def test_send_telegram_message_uses_configured_channel(self):
+        with patch("telegram_client.requests.post") as post:
+            post.return_value.json.return_value = {"ok": True}
+            send_telegram_message("Weather update")
+
+        self.assertEqual(
+            post.call_args.kwargs["json"],
+            {"chat_id": "-1001234567890", "text": "Weather update"},
+        )
+        self.assertEqual(post.call_args.kwargs["timeout"], 15)
+
     def test_parrao_weather_bot(self):
         os.environ["ENV_PRO"] = "N"
         with self.assertLogs() as captured:
-            main.parrao_weather_bot("")
+            response = main.parrao_weather_bot("")
 
-        self.assertGreater(len(captured.records), 5)
+        self.assertEqual(response[1], 200)
         self.assertIn(main.SOURCE,
                       captured.records[len(captured.records) - 1].getMessage())
 
-    def test_parrao_weather_bot_with_Twitter(self):
+    def test_parrao_weather_bot_with_telegram(self):
         os.environ["ENV_PRO"] = "Y"
-        main.ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
         with self.assertLogs() as captured:
-            main.parrao_weather_bot("")
+            response = main.parrao_weather_bot("")
 
-        self.assertGreater(len(captured.records), 5)
-        # self.assertIn("Posting tweet in Tweeter", captured.records[6].getMessage())
+        self.assertEqual(response[1], 200)
         self.assertIn(main.SOURCE,
                       captured.records[len(captured.records) - 1].getMessage())
 
-    def test_parrao_weather_bot_no_credentials(self):
-        main.ACCESS_TOKEN = ""
-        self.assertRaises(RequestException, main.parrao_weather_bot, "")
+    def test_parrao_weather_bot_without_telegram_credentials(self):
+        os.environ["ENV_PRO"] = "Y"
+        os.environ["TELEGRAM_BOT_TOKEN"] = ""
+        response = main.parrao_weather_bot("")
+        self.assertEqual(response[1], 502)
 
     def test_parrao_weather_bot_daily(self):
         os.environ["ENV_PRO"] = "N"
         with self.assertLogs() as captured:
-            main.parrao_weather_bot_daily("")
+            response = main.parrao_weather_bot_daily("")
 
-        self.assertGreater(len(captured.records), 5)
+        self.assertEqual(response[1], 200)
         self.assertIn(main.SOURCE,
                       captured.records[len(captured.records) - 1].getMessage())
 
-    def test_parrao_weather_bot_daily_with_Twitter(self):
+    def test_parrao_weather_bot_daily_with_telegram(self):
         os.environ["ENV_PRO"] = "Y"
-        main.ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
         with self.assertLogs() as captured:
-            main.parrao_weather_bot_daily("")
+            response = main.parrao_weather_bot_daily("")
 
-        self.assertGreater(len(captured.records), 5)
-        # self.assertIn("Posting tweet in Tweeter", captured.records[7].getMessage())
+        self.assertEqual(response[1], 200)
         self.assertIn(main.SOURCE,
                       captured.records[len(captured.records) - 1].getMessage())
 
-    def test_parrao_weather_bot_daily_no_credentials(self):
-        main.ACCESS_TOKEN = ""
-        self.assertRaises(RequestException, main.parrao_weather_bot_daily, "")
+    def test_parrao_weather_bot_daily_without_telegram_credentials(self):
+        os.environ["ENV_PRO"] = "Y"
+        os.environ["TELEGRAM_BOT_TOKEN"] = ""
+        response = main.parrao_weather_bot_daily("")
+        self.assertEqual(response[1], 502)
 
 
 if __name__ == '__main__':

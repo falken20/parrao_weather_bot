@@ -14,8 +14,8 @@ steps:
           '--entry-point', 'parrao_weather_bot',
           '--memory', '128MB',
           '--timeout', '120s',
-          # '--env-vars-file', './credentials.yaml', # This file doesn't upload to GitHub
           '--service-account', 'cercedilla-weather-bot@appspot.gserviceaccount.com',
+          '--remove-env-vars', 'CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET',
           '--trigger-http',
           '--source', '.'
           ]
@@ -32,13 +32,11 @@ steps:
     - --entry-point=parrao_weather_bot_daily
     - --memory=128MB
     - --timeout=120s
-    # - --env-vars-file=./credentials.yaml # This file doesn't upload to GitHub
     - --service-account=cercedilla-weather-bot@appspot.gserviceaccount.com
+    - --remove-env-vars=CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET
     - --trigger-http
     - --source=.
-    # env:
-    # Set var with the value of Cloud Build TRIGGER var
-    # - '_SERVICE_ACCOUNT=${_SERVICE_ACCOUNT}' 
+    # Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in the function runtime configuration.
 
 # Deploy cloud Functions with sh
 # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'

@@ -25,15 +25,15 @@ cd build/src/parrao_weather_bot
 pwd
 
 gcloud functions deploy cercedilla-weather-bot --region=europe-west1 \
-    --runtime=python37 --entry-point=parrao_weather_bot --memory=128MB --timeout=120s \
-    # --env-vars-file ./credentials.yaml \ # This file doesn't upload to GitHub
+    --runtime=python310 --entry-point=parrao_weather_bot --memory=128MB --timeout=120s \
     --service-account=$_SERVICE_ACCOUNT \
+    --remove-env-vars=CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET \
     --trigger-http --source=.
 
 gcloud functions deploy cercedilla-weather-daily-bot --region=europe-west1 \
-    --runtime=python37 --entry-point=parrao_weather_bot_daily --memory=128MB --timeout=120s \
-    # --env-vars-file ./credentials.yaml \ # This file doesn't upload to GitHub
+    --runtime=python310 --entry-point=parrao_weather_bot_daily --memory=128MB --timeout=120s \
     --service-account=$_SERVICE_ACCOUNT \
+    --remove-env-vars=CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET \
     --trigger-http --source=.
 
 echo ">>> Clean and delete build folder"
