@@ -36,6 +36,7 @@ cloud_scheduler.txt
 requirements-tests.txt
 deploy.sh
 .env_template
+.env
 README.md
 LICENSE
 cloudbuild.yaml
