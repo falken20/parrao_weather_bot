@@ -13,15 +13,9 @@ from models import Weather
 from telegram_client import TelegramDeliveryError, send_telegram_message
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Load env file
 load_dotenv(find_dotenv())
-# load_dotenv(os.path.join(BASE_DIR, '.env'), override=True)
 
-# Set log level and secret key
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'ERROR'))
-SECRET_KEY = os.getenv('SECRET_KEY', default='xsd--ammmss!!"kd(sss')
 
 # Weather station API data
 STATION_ID = os.environ.get('STATION_ID')
@@ -40,11 +34,10 @@ SOURCE = "Falken weather station"
 
 
 def get_api_data(url=URL_WEATHER):
-    """ Process to get current weather data  """
+    """Fetch the first weather observation from the API."""
     logging.info(f'{os.getenv("ID_LOG", "")} Getting weather data...')
 
     try:
-        # Getting a dataframe with the all data weather
         response = requests.get(url, timeout=15)
         response.raise_for_status()
         return response.json()["observations"][0]

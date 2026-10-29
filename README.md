@@ -14,45 +14,58 @@
 Process that periodically retrieves and publishes weather data from Cercedilla to a Telegram channel using Google Cloud Platform. Cloud Functions fetch and publish the data, and Cloud Scheduler triggers them.
 
 ##### Deploy
-```bash
-It has to copy the content of parrao_weather_bot.py file in Cloud Function 
-section in Google Cloud Platform, inside main.py file.
-```
-OR 
-```bash
-Execute Build trigger in Google Console when push repo
-```
+
+Run the configured Cloud Build trigger to deploy both functions using [cloudbuild.yaml](cloudbuild.yaml). The HTTP entry points are `parrao_weather_bot` and `parrao_weather_bot_daily` in [main.py](main.py); deploy the root source and its dependencies, not a single copied file.
+
+Configure the runtime environment variables on both functions before deploying. [cloud_function.txt](cloud_function.txt) and [cloud_scheduler.txt](cloud_scheduler.txt) are reference examples, not current configuration exports. [deploy.sh](deploy.sh) is a legacy deployment script and is not the recommended workflow.
+
 ##### Setup
 
+Use the Python version configured for Cloud Functions, currently Python 3.10 in the build configuration. Create a local environment and fill in the values copied from [.env_template](.env_template); never commit credentials.
+
 ```bash
-pip install -r requirements.txt
+python3.10 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt
+cp .env_template .env
 ```
 ##### Setup Tests
 
 ```bash
-pip install -r requirements-tests.txt
+.venv/bin/python -m pip install -r requirements-tests.txt
 ```
 ##### Running the app
 
 ```bash
-python ./parrao_weather_bot.py
+.venv/bin/python main.py
+```
+
+This runs the current and daily handlers. With `ENV_PRO=N`, weather is fetched and messages are logged without publishing or saving daily data. `ENV_PRO=Y` enables Telegram publishing and daily database writes. A valid `DATABASE_URL` is required when the application starts, including in preview mode.
+
+Before enabling daily database writes, initialize the configured database:
+
+```bash
+.venv/bin/python main_db.py
 ```
 
 ##### Sending a Telegram message from the terminal
 
 ```bash
-python -m telegram_cli "Test message"
-printf 'First line\nSecond line\n' | python -m telegram_cli
-python -m telegram_cli --dry-run "Test message"
+.venv/bin/python -m telegram_cli "Test message"
+printf 'First line\nSecond line\n' | .venv/bin/python -m telegram_cli
+.venv/bin/python -m telegram_cli --dry-run "Test message"
 ```
 
-The CLI uses `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from `.env`. Sending is real unless `--dry-run` is specified.
+The CLI loads `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from `.env` with priority over exported variables. Sending is real unless `--dry-run` is specified, regardless of `ENV_PRO`. The CLI does not need the weather API or a database.
 
 ##### Running the tests with pytest and coverage
 
 ```bash
-./scripts/check_project.sh
+.venv/bin/python -m pytest
+PATH="$PWD/.venv/bin:$PATH" ./check_app.sh
 ```
+
+Tests use SQLite in memory and mocked Telegram and weather API requests. The check script prints coverage and lint results; its final style check is advisory, so review the output rather than relying only on its exit code. The legacy scraper is outside this test suite.
 
 ##### Environment vars
 ```bash
@@ -63,12 +76,15 @@ LOG_LEVEL=INFO
 API_KEY=XXXXXXXXXXXX
 STATION_ID=XXXXXXXXXXXX
 
+# Database
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE
+
 # Telegram bot
 TELEGRAM_BOT_TOKEN=XXXXXXXXXXXX
 TELEGRAM_CHAT_ID=@your_channel_or_chat_id
 ```
 
-Configure these values in both Cloud Functions as runtime environment variables. Add the bot as a channel administrator with permission to publish.
+Replace the example values with your configuration. Configure these values in both Cloud Functions as runtime environment variables. Add the bot as a channel administrator with permission to publish. The scraper under `parrao_weather_bot/` is retained as legacy code; it is not used by the deployed handlers and additionally requires `pandas` if run manually.
 ---
 
 ##### Doc API wunderground.com
