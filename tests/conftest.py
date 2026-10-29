@@ -1,6 +1,8 @@
 import os
 
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
@@ -26,9 +28,16 @@ def isolate_external_services(monkeypatch):
         "post",
         lambda *args, **kwargs: FakeTelegramResponse(),
     )
-    yield
-    db.session.rollback()
-
-
-def pytest_configure():
-    db.Base.metadata.create_all(db.engine)
+    engine = create_engine("sqlite:///:memory:")
+    db.Base.metadata.create_all(engine)
+    session_factory = sessionmaker(bind=engine)
+    session = session_factory()
+    monkeypatch.setattr(db, "engine", engine)
+    monkeypatch.setattr(db, "Session", session_factory)
+    monkeypatch.setattr(db, "session", session)
+    try:
+        yield
+    finally:
+        session.rollback()
+        session.close()
+        engine.dispose()

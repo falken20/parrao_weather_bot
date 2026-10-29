@@ -3,7 +3,7 @@
 <img src="./img/logo_app.png" alt="drawing" width="400"/>
 <a href="https://richionline-portfolio.nw.r.appspot.com"><img src="https://richionline-portfolio.nw.r.appspot.com/static/assets/falken_logo_trans.png" width=50 alt="Personal Portfolio web"></a>
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-95%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
+![Version](https://img.shields.io/badge/version-1.5.0-blue) ![GitHub language count](https://img.shields.io/github/languages/count/falken20/parrao_weather_bot) ![GitHub Top languaje](https://img.shields.io/github/languages/top/falken20/parrao_weather_bot) ![Test coverage](https://img.shields.io/badge/test%20coverage-96%25-green) ![GitHub License](https://img.shields.io/github/license/falken20/parrao_weather_bot)
 
 
 [![Richi web](https://img.shields.io/badge/web-richionline-blue)](https://richionline-portfolio.nw.r.appspot.com)
@@ -42,6 +42,8 @@ cp .env_template .env
 
 This runs the current and daily handlers. With `ENV_PRO=N`, weather is fetched and messages are logged without publishing or saving daily data. `ENV_PRO=Y` enables Telegram publishing and daily database writes. A valid `DATABASE_URL` is required when the application starts, including in preview mode.
 
+Required weather measurements must be finite JSON numbers, not strings or booleans. Invalid or incomplete observations return HTTP `502` before any Telegram message or daily database write.
+
 Before enabling daily database writes, initialize the configured database:
 
 ```bash
@@ -58,6 +60,8 @@ printf 'First line\nSecond line\n' | .venv/bin/python -m telegram_cli
 
 The CLI loads `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from `.env` with priority over exported variables. Sending is real unless `--dry-run` is specified, regardless of `ENV_PRO`. The CLI does not need the weather API or a database.
 
+Messages must contain 1 to 4096 characters after trimming leading and trailing whitespace. Invalid input exits with code `2` before loading credentials or sending; the same validation applies to stdin and `--dry-run`.
+
 ##### Running the tests with pytest and coverage
 
 ```bash
@@ -65,7 +69,7 @@ The CLI loads `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from `.env` with prior
 PATH="$PWD/.venv/bin:$PATH" ./check_app.sh
 ```
 
-Tests use SQLite in memory and mocked Telegram and weather API requests. The check script prints coverage and lint results; its final style check is advisory, so review the output rather than relying only on its exit code. The legacy scraper is outside this test suite.
+Each test uses a fresh SQLite database in memory and mocked Telegram and weather API requests, so committed test data does not leak into other tests. The check script prints coverage and lint results; its final style check is advisory, so review the output rather than relying only on its exit code. The legacy scraper is outside this test suite.
 
 ##### Environment vars
 ```bash

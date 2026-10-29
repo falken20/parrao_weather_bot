@@ -11,6 +11,12 @@ class TestModel(unittest.TestCase):
 
     def test_create_default_location(self):
         main_db.create_default_location()
+        main_db.create_default_location()
+
+        location = db.session.get(models.Location, 1)
+        self.assertIsNotNone(location)
+        self.assertEqual(location.desc_location, 'Cercedilla')
+        self.assertEqual(db.session.query(models.Location).count(), 1)
 
     def test_init_location(self):
         location = models.Location(id_location=1, desc_location='A location')
@@ -61,7 +67,13 @@ class TestModel(unittest.TestCase):
         commit.assert_called_once_with()
 
     def test_no_location(self):
+        main_db.create_default_location()
         default_location = db.session.get(models.Location, 1)
         db.session.delete(default_location)
         db.session.commit()
         main_db.create_default_location()
+
+        location = db.session.get(models.Location, 1)
+        self.assertIsNotNone(location)
+        self.assertEqual(location.desc_location, 'Cercedilla')
+        self.assertEqual(db.session.query(models.Location).count(), 1)

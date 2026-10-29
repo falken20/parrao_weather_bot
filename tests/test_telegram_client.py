@@ -47,14 +47,21 @@ class TestSendTelegramMessage(unittest.TestCase):
     @patch.dict("os.environ", TELEGRAM_ENV)
     @patch("telegram_client.requests.post")
     def test_converts_http_error_without_exposing_token(self, post):
-        response = Mock(status_code=403)
-        post.side_effect = requests.HTTPError("forbidden", response=response)
+        for status_code in (400, 401, 403, 429, 500):
+            with self.subTest(status_code=status_code):
+                response = Mock(status_code=status_code)
+                response.raise_for_status.side_effect = requests.HTTPError(
+                    "Request failed for botunit-test-token/sendMessage",
+                    response=response,
+                )
+                post.return_value = response
 
-        with self.assertRaises(TelegramDeliveryError) as raised:
-            send_telegram_message("Weather is clear")
+                with self.assertRaises(TelegramDeliveryError) as raised:
+                    send_telegram_message("Weather is clear")
 
-        self.assertIn("HTTP 403", str(raised.exception))
-        self.assertNotIn("unit-test-token", str(raised.exception))
+                self.assertIn(f"HTTP {status_code}", str(raised.exception))
+                self.assertNotIn("unit-test-token", str(raised.exception))
+                response.json.assert_not_called()
 
     @patch.dict("os.environ", TELEGRAM_ENV)
     @patch("telegram_client.requests.post")

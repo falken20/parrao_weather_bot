@@ -6,6 +6,9 @@ from dotenv import find_dotenv, load_dotenv
 from telegram_client import TelegramDeliveryError, send_telegram_message
 
 
+MAX_MESSAGE_LENGTH = 4096
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         description="Send a message to the configured Telegram chat."
@@ -36,6 +39,10 @@ def main(argv=None):
     message = message.strip()
     if not message:
         parser.error("message cannot be empty")
+    if len(message) > MAX_MESSAGE_LENGTH:
+        parser.error(
+            f"message cannot exceed {MAX_MESSAGE_LENGTH} characters"
+        )
 
     if args.dry_run:
         print("Dry run: message validated; nothing was sent.")

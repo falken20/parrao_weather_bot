@@ -5,6 +5,7 @@ import logging
 import sys
 from dotenv import load_dotenv, find_dotenv
 from datetime import datetime, timedelta
+from math import isfinite
 import pytz  # Work with time zones
 
 import requests
@@ -40,12 +41,48 @@ def get_api_data(url=URL_WEATHER):
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
-        return response.json()["observations"][0]
+        observations = response.json()["observations"]
+        if (
+            not isinstance(observations, list)
+            or not observations
+            or not isinstance(observations[0], dict)
+        ):
+            raise ValueError("Invalid weather observations")
+        return observations[0]
     except Exception as err:
         logging.error(
             f'{os.getenv("ID_LOG", "")} ERROR getting weather data at line '
             f'{sys.exc_info()[2].tb_lineno}: {type(err).__name__}')
         return None
+
+
+def _is_valid_weather_data(weather_data, daily=False):
+    if not isinstance(weather_data, dict):
+        return False
+    metric = weather_data.get("metric")
+    if not isinstance(metric, dict):
+        return False
+
+    metric_fields = (
+        ("tempHigh", "tempLow", "precipTotal", "windgustHigh",
+         "pressureMax", "pressureMin")
+        if daily else ("temp", "precipTotal", "windSpeed")
+    )
+    observation_fields = (
+        ("humidityHigh", "humidityLow", "uvHigh")
+        if daily else ("humidity", "uv")
+    )
+    try:
+        values = [metric[field] for field in metric_fields]
+        values.extend(weather_data[field] for field in observation_fields)
+        return all(
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and isfinite(value)
+            for value in values
+        )
+    except (KeyError, OverflowError):
+        return False
 
 
 def _publish_message(message):
@@ -66,7 +103,7 @@ def parrao_weather_bot(request):
     """Fetch and publish current weather through Telegram."""
     logging.info("%s Fetching current weather...", os.getenv("ID_LOG", ""))
     weather_data = get_api_data(URL_WEATHER)
-    if weather_data is None:
+    if not _is_valid_weather_data(weather_data):
         return "Could not retrieve current weather", 502
 
     tz_madrid = pytz.timezone("Europe/Madrid")
@@ -89,7 +126,7 @@ def parrao_weather_bot_daily(request):
     yesterday = datetime.now(tz_madrid) - timedelta(days=1)
     day_forecast = yesterday.strftime("%Y%m%d")
     weather_data = get_api_data(URL_WEATHER_DAILY + day_forecast)
-    if weather_data is None:
+    if not _is_valid_weather_data(weather_data, daily=True):
         return "Could not retrieve daily weather", 502
 
     message = (

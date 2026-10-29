@@ -5,6 +5,7 @@ File to tests using unittest library
 
 import os
 import unittest
+from copy import deepcopy
 from unittest.mock import Mock, patch
 
 import requests
@@ -48,15 +49,102 @@ class TestMain(unittest.TestCase):
         get.assert_called_once_with(WEATHER_URL, timeout=15)
         response.raise_for_status.assert_called_once_with()
 
-    def test_get_api_data_returns_none_on_http_error(self):
+    def test_get_api_data_returns_none_on_timeout(self):
         with patch("main.requests.get", side_effect=requests.Timeout):
             self.assertIsNone(main.get_api_data(WEATHER_URL))
 
-    def test_get_api_data_returns_none_on_invalid_payload(self):
+    def test_get_api_data_returns_none_on_http_error(self):
+        for status_code in (400, 429, 500):
+            with self.subTest(status_code=status_code):
+                response = Mock(status_code=status_code)
+                response.raise_for_status.side_effect = requests.HTTPError(
+                    response=response
+                )
+                with patch("main.requests.get", return_value=response):
+                    self.assertIsNone(main.get_api_data(WEATHER_URL))
+                response.json.assert_not_called()
+
+    def test_get_api_data_returns_none_on_invalid_json(self):
         response = Mock()
-        response.json.return_value = {"observations": []}
+        response.json.side_effect = ValueError("Invalid JSON")
         with patch("main.requests.get", return_value=response):
             self.assertIsNone(main.get_api_data(WEATHER_URL))
+
+    def test_get_api_data_returns_none_on_invalid_payload(self):
+        payloads = (
+            None, [], {}, "invalid", {"observations": None},
+            {"observations": []}, {"observations": {}},
+            {"observations": "invalid"}, {"observations": [None]},
+            {"observations": [[]]}, {"observations": ["invalid"]},
+        )
+        for payload in payloads:
+            with self.subTest(payload=payload):
+                response = Mock()
+                response.json.return_value = payload
+                with patch("main.requests.get", return_value=response):
+                    self.assertIsNone(main.get_api_data(WEATHER_URL))
+
+    def _assert_weather_rejected(self, handler, weather_data):
+        with patch.dict(os.environ, {"ENV_PRO": "Y"}), patch(
+            "main.get_api_data", return_value=weather_data
+        ), patch("main.send_telegram_message") as send, patch.object(
+            main.Weather, "write_weather"
+        ) as save:
+            result = handler({})
+
+        self.assertEqual(result[1], 502)
+        send.assert_not_called()
+        save.assert_not_called()
+
+    def test_handlers_reject_invalid_observation_shapes(self):
+        invalid_observations = (
+            None, [], "invalid", {}, {"metric": None}, {"metric": []},
+        )
+        for handler in (
+            main.parrao_weather_bot, main.parrao_weather_bot_daily
+        ):
+            for weather_data in invalid_observations:
+                with self.subTest(handler=handler.__name__, data=weather_data):
+                    self._assert_weather_rejected(handler, weather_data)
+
+    def test_handlers_reject_each_missing_required_field(self):
+        for handler, template in (
+            (main.parrao_weather_bot, CURRENT_WEATHER),
+            (main.parrao_weather_bot_daily, DAILY_WEATHER),
+        ):
+            paths = [(field,) for field in template]
+            paths.extend(("metric", field) for field in template["metric"])
+            for path in paths:
+                with self.subTest(handler=handler.__name__, field=path):
+                    weather_data = deepcopy(template)
+                    container = weather_data
+                    if len(path) == 2:
+                        container = weather_data["metric"]
+                    del container[path[-1]]
+                    self._assert_weather_rejected(handler, weather_data)
+
+    def test_handlers_reject_invalid_numeric_values(self):
+        invalid_values = (
+            None, "20.2", "invalid", True, False, [], {},
+            float("nan"), float("inf"), float("-inf"), 10 ** 400,
+        )
+        for handler, template in (
+            (main.parrao_weather_bot, CURRENT_WEATHER),
+            (main.parrao_weather_bot_daily, DAILY_WEATHER),
+        ):
+            paths = [(field,) for field in template if field != "metric"]
+            paths.extend(("metric", field) for field in template["metric"])
+            for path in paths:
+                for value in invalid_values:
+                    with self.subTest(
+                        handler=handler.__name__, field=path, value=value
+                    ):
+                        weather_data = deepcopy(template)
+                        container = weather_data
+                        if len(path) == 2:
+                            container = weather_data["metric"]
+                        container[path[-1]] = value
+                        self._assert_weather_rejected(handler, weather_data)
 
     def test_current_handler_returns_502_when_weather_is_unavailable(self):
         with patch("main.get_api_data", return_value=None), patch(
